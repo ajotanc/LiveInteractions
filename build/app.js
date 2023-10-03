@@ -68,7 +68,7 @@ async function ranked(request, reply) {
   const userQuerySchema = import_zod2.z.object({
     output: import_zod2.z.enum(["json", "txt"]).default("txt"),
     queue: import_zod2.z.enum(["solo", "flex"]).default("solo").transform(
-      (value) => value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
+      (value) => !value || value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
     )
   });
   const { username } = userParamSchema.parse(request.params);

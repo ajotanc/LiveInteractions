@@ -19,7 +19,7 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
       .enum(["solo", "flex"])
       .default("solo")
       .transform((value) =>
-        value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
+        !value || value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
       ),
   });
 
