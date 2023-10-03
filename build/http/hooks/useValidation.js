@@ -25,10 +25,11 @@ __export(useValidation_exports, {
 module.exports = __toCommonJS(useValidation_exports);
 function useValidation(request, _reply, done) {
   const query = request.query;
-  if (!query.queue) {
-    query.queue = "solo";
-  } else {
+  if (query.queue) {
     query.queue = query.queue.toLowerCase();
+  }
+  if (query.championName) {
+    query.championName = query.championName.toLowerCase();
   }
   done();
 }

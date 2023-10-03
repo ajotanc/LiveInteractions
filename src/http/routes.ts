@@ -6,5 +6,5 @@ export async function appRoutes(app: FastifyInstance) {
   // LEAGUE OF LEGENDS
   app.get("/leagueoflegends/ranked/:username", ranked);
   app.get("/leagueoflegends/champion", random);
-  app.get("/leagueoflegends/champion/:name", findByName);
+  app.get("/leagueoflegends/champion/:championName", findByName);
 }

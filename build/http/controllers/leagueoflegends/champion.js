@@ -52,10 +52,10 @@ async function allChampions() {
   return champions;
 }
 async function random(request, reply) {
-  const userQuerySchema = import_zod.z.object({
+  const championQuerySchema = import_zod.z.object({
     output: import_zod.z.enum(["json", "txt"]).default("txt")
   });
-  const { output } = userQuerySchema.parse(request.query);
+  const { output } = championQuerySchema.parse(request.query);
   const champions = await allChampions();
   const championKeys = Object.keys(champions);
   const randomIndex = Math.floor(Math.random() * championKeys.length);
@@ -68,18 +68,18 @@ async function random(request, reply) {
   reply.send(randomChampion);
 }
 async function findByName(request, reply) {
-  const userQuerySchema = import_zod.z.object({
+  const championQuerySchema = import_zod.z.object({
     output: import_zod.z.enum(["json", "txt"]).default("txt")
   });
-  const userParamSchema = import_zod.z.object({
-    name: import_zod.z.string()
+  const championParamSchema = import_zod.z.object({
+    championName: import_zod.z.string()
   });
-  const { output } = userQuerySchema.parse(request.query);
-  const { name: championName } = userParamSchema.parse(request.params);
+  const { output } = championQuerySchema.parse(request.query);
+  const { championName } = championParamSchema.parse(request.params);
   const champions = await allChampions();
   const championKeys = Object.keys(champions);
   const randomIndex = championKeys.find(
-    (champion) => champion.toLocaleLowerCase() === championName.toLocaleLowerCase()
+    (champion) => champion.toLocaleLowerCase() === championName
   );
   if (!randomIndex) {
     throw new ChampionNotFound();

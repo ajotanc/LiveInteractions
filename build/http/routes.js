@@ -34,7 +34,7 @@ var import_zod = require("zod");
 var envSchema = import_zod.z.object({
   NODE_ENV: import_zod.z.enum(["dev", "test", "production"]).default("dev"),
   PORT: import_zod.z.coerce.number().default(3333),
-  SECRET_KEY_RIOT: import_zod.z.string().default("RGAPI-603cb1b7-671a-4521-a5af-602a7a5e55eb")
+  SECRET_KEY_RIOT: import_zod.z.string()
 });
 var _env = envSchema.safeParse(process.env);
 if (_env.success === false) {
@@ -111,10 +111,10 @@ async function allChampions() {
   return champions;
 }
 async function random(request, reply) {
-  const userQuerySchema = import_zod3.z.object({
+  const championQuerySchema = import_zod3.z.object({
     output: import_zod3.z.enum(["json", "txt"]).default("txt")
   });
-  const { output } = userQuerySchema.parse(request.query);
+  const { output } = championQuerySchema.parse(request.query);
   const champions = await allChampions();
   const championKeys = Object.keys(champions);
   const randomIndex = Math.floor(Math.random() * championKeys.length);
@@ -127,18 +127,18 @@ async function random(request, reply) {
   reply.send(randomChampion);
 }
 async function findByName(request, reply) {
-  const userQuerySchema = import_zod3.z.object({
+  const championQuerySchema = import_zod3.z.object({
     output: import_zod3.z.enum(["json", "txt"]).default("txt")
   });
-  const userParamSchema = import_zod3.z.object({
-    name: import_zod3.z.string()
+  const championParamSchema = import_zod3.z.object({
+    championName: import_zod3.z.string()
   });
-  const { output } = userQuerySchema.parse(request.query);
-  const { name: championName } = userParamSchema.parse(request.params);
+  const { output } = championQuerySchema.parse(request.query);
+  const { championName } = championParamSchema.parse(request.params);
   const champions = await allChampions();
   const championKeys = Object.keys(champions);
   const randomIndex = championKeys.find(
-    (champion) => champion.toLocaleLowerCase() === championName.toLocaleLowerCase()
+    (champion) => champion.toLocaleLowerCase() === championName
   );
   if (!randomIndex) {
     throw new ChampionNotFound();
@@ -155,7 +155,7 @@ async function findByName(request, reply) {
 async function appRoutes(app) {
   app.get("/leagueoflegends/ranked/:username", ranked);
   app.get("/leagueoflegends/champion", random);
-  app.get("/leagueoflegends/champion/:name", findByName);
+  app.get("/leagueoflegends/champion/:championName", findByName);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

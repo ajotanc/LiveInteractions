@@ -6,8 +6,8 @@ export async function lastVersion() {
   const lastVersion = await fetch(
     "https://ddragon.leagueoflegends.com/api/versions.json"
   );
-  const [version] = await lastVersion.json();
 
+  const [version] = await lastVersion.json();
   return version;
 }
 
@@ -23,11 +23,11 @@ export async function allChampions() {
 }
 
 export async function random(request: FastifyRequest, reply: FastifyReply) {
-  const userQuerySchema = z.object({
+  const championQuerySchema = z.object({
     output: z.enum(["json", "txt"]).default("txt"),
   });
 
-  const { output } = userQuerySchema.parse(request.query);
+  const { output } = championQuerySchema.parse(request.query);
   const champions = await allChampions();
 
   const championKeys = Object.keys(champions);
@@ -45,24 +45,23 @@ export async function random(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function findByName(request: FastifyRequest, reply: FastifyReply) {
-  const userQuerySchema = z.object({
+  const championQuerySchema = z.object({
     output: z.enum(["json", "txt"]).default("txt"),
   });
 
-  const userParamSchema = z.object({
-    name: z.string(),
+  const championParamSchema = z.object({
+    championName: z.string(),
   });
 
-  const { output } = userQuerySchema.parse(request.query);
-  const { name: championName } = userParamSchema.parse(request.params);
+  const { output } = championQuerySchema.parse(request.query);
+  const { championName } = championParamSchema.parse(request.params);
 
   const champions = await allChampions();
 
   const championKeys = Object.keys(champions);
   const randomIndex = championKeys.find(
-    (champion) =>
-      champion.toLocaleLowerCase() === championName.toLocaleLowerCase()
-  ) as string | undefined;
+    (champion) => champion.toLocaleLowerCase() === championName
+  );
 
   if (!randomIndex) {
     throw new ChampionNotFound();

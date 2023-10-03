@@ -31,7 +31,7 @@ var import_zod = require("zod");
 var envSchema = import_zod.z.object({
   NODE_ENV: import_zod.z.enum(["dev", "test", "production"]).default("dev"),
   PORT: import_zod.z.coerce.number().default(3333),
-  SECRET_KEY_RIOT: import_zod.z.string().default("RGAPI-603cb1b7-671a-4521-a5af-602a7a5e55eb")
+  SECRET_KEY_RIOT: import_zod.z.string()
 });
 var _env = envSchema.safeParse(process.env);
 if (_env.success === false) {

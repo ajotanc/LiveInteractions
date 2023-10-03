@@ -7,10 +7,12 @@ export function useValidation(
 ) {
   const query: any = request.query;
 
-  if (!query.queue) {
-    query.queue = "solo";
-  } else {
+  if (query.queue) {
     query.queue = query.queue.toLowerCase();
+  }
+
+  if (query.championName) {
+    query.championName = query.championName.toLowerCase();
   }
 
   done();

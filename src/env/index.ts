@@ -4,9 +4,7 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["dev", "test", "production"]).default("dev"),
   PORT: z.coerce.number().default(3333),
-  SECRET_KEY_RIOT: z
-    .string()
-    .default("RGAPI-603cb1b7-671a-4521-a5af-602a7a5e55eb"),
+  SECRET_KEY_RIOT: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);
