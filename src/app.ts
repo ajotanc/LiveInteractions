@@ -6,7 +6,7 @@ import { appRoutes } from "./http/routes";
 import { env } from "./env";
 import { InvalidMimeTypes } from "./errors/invalid-mimetypes";
 import { ChampionNotFound } from "./errors/champion-not-found";
-// import { useValidation } from "./http/hooks/useValidation";
+import { useValidation } from "./http/hooks/useValidation";
 
 export const app = fastify();
 
@@ -18,7 +18,7 @@ app.register(cors, corsOptions);
 app.register(multipart);
 app.register(appRoutes, { prefix: "api" });
 
-// app.addHook("preValidation", useValidation);
+app.addHook("preValidation", useValidation);
 
 app.setErrorHandler((error, _request, reply) => {
   if (error instanceof ZodError) {

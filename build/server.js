@@ -58,7 +58,7 @@ async function ranked(request, reply) {
   const userQuerySchema = import_zod2.z.object({
     output: import_zod2.z.enum(["json", "txt"]).default("txt"),
     queue: import_zod2.z.enum(["solo", "flex"]).default("solo").transform(
-      (value) => !value || value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
+      (value) => value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
     )
   });
   const { username } = userParamSchema.parse(request.params);
@@ -169,6 +169,17 @@ var InvalidMimeTypes = class extends Error {
   }
 };
 
+// src/http/hooks/useValidation.ts
+function useValidation(request, _reply, done) {
+  const query = request.query;
+  if (!query.queue) {
+    query.queue = "solo";
+  } else {
+    query.queue = query.queue.toLowerCase();
+  }
+  done();
+}
+
 // src/app.ts
 var app = (0, import_fastify.default)();
 var corsOptions = {
@@ -177,6 +188,7 @@ var corsOptions = {
 app.register(import_cors.default, corsOptions);
 app.register(import_multipart.default);
 app.register(appRoutes, { prefix: "api" });
+app.addHook("preValidation", useValidation);
 app.setErrorHandler((error, _request, reply) => {
   if (error instanceof import_zod4.ZodError) {
     return reply.status(404).send({ message: "Validation error.", issues: error.format() });
