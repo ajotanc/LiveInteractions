@@ -1,0 +1,6 @@
+node_modules/ 
+biuld
+.env
+@types
+CURL.*
+yarn.lock
