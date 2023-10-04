@@ -1,10 +1,4 @@
-import {
-  FastifyInstance,
-  FastifyPluginAsync,
-  //   FastifyReply,
-  //   FastifyRequest,
-  //   FastifyServerOptions,
-} from "fastify";
+import { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { ranked } from "./controllers/leagueoflegends/ranked";
 import { random, findByName } from "./controllers/leagueoflegends/champion";
 import { game } from "./controllers/games/jokenpo";
