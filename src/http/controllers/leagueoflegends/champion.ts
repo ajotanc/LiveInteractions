@@ -1,5 +1,4 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { ChampionNotFound } from "@/errors/champion-not-found";
 import { z } from "zod";
 
 export async function lastVersion() {
@@ -60,7 +59,7 @@ export async function findByName(request: FastifyRequest, reply: FastifyReply) {
   const championChosen = champions[championName];
 
   if (!championChosen) {
-    throw new ChampionNotFound();
+    throw new Error("Campeão escolhido não encontrado");
   }
 
   if (output === "txt") {

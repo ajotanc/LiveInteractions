@@ -26,15 +26,6 @@ __export(champion_exports, {
   random: () => random
 });
 module.exports = __toCommonJS(champion_exports);
-
-// src/errors/champion-not-found.ts
-var ChampionNotFound = class extends Error {
-  constructor() {
-    super("Campe\xE3o escolhido n\xE3o encontrado");
-  }
-};
-
-// src/http/controllers/leagueoflegends/champion.ts
 var import_zod = require("zod");
 async function lastVersion() {
   const lastVersion2 = await fetch(
@@ -79,7 +70,7 @@ async function findByName(request, reply) {
   const champions = await allChampions();
   const championChosen = champions[championName];
   if (!championChosen) {
-    throw new ChampionNotFound();
+    throw new Error("Campe\xE3o escolhido n\xE3o encontrado");
   }
   if (output === "txt") {
     const { name, title, blurb: description } = championChosen;

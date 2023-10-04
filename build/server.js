@@ -94,13 +94,6 @@ async function ranked(request, reply) {
   reply.send({ username, tier, rank, points, wins, losses });
 }
 
-// src/errors/champion-not-found.ts
-var ChampionNotFound = class extends Error {
-  constructor() {
-    super("Campe\xE3o escolhido n\xE3o encontrado");
-  }
-};
-
 // src/http/controllers/leagueoflegends/champion.ts
 var import_zod3 = require("zod");
 async function lastVersion() {
@@ -146,7 +139,7 @@ async function findByName(request, reply) {
   const champions = await allChampions();
   const championChosen = champions[championName];
   if (!championChosen) {
-    throw new ChampionNotFound();
+    throw new Error("Campe\xE3o escolhido n\xE3o encontrado");
   }
   if (output === "txt") {
     const { name, title, blurb: description } = championChosen;
@@ -236,14 +229,12 @@ app.register(import_multipart.default);
 app.register(appRoutes, { prefix: "api" });
 app.addHook("preValidation", useValidation);
 app.setErrorHandler((error, request, reply) => {
+  const { output } = request.query;
   if (error instanceof import_zod5.ZodError) {
-    if ("query" in request) {
-      const { output } = request.query;
-      if (output === "txt") {
-        const { errors } = error;
-        const message = errors.map((error2) => error2.message).join(" | ");
-        return reply.send(message);
-      }
+    if (output === "txt") {
+      const { errors } = error;
+      const message = errors.map((error2) => error2.message).join(" | ");
+      return reply.send(message);
     }
     return reply.status(404).send({ message: "Validation error.", issues: error.format() });
   }
@@ -251,12 +242,8 @@ app.setErrorHandler((error, request, reply) => {
     console.error(error);
   } else {
   }
-  if (error instanceof ChampionNotFound) {
-    const { output } = request.query;
-    if (output === "txt") {
-      reply.send(error.message);
-    }
-    reply.status(404).send({ message: error.message });
+  if (output === "txt") {
+    reply.send(error.message);
   }
   return reply.status(500).send({ message: "Internal server error." });
 });
