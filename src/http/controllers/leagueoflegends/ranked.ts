@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LolApi, Constants } from "twisted";
 import { ZodIssueOptionalMessage, z } from "zod";
-import { CustomZodIssue, SummonerLeagueInterface } from "#/interfaces";
-import { env } from "#/env";
+import { CustomZodIssue, SummonerLeagueInterface } from "../../../interfaces";
+import { env } from "../../../env";
 
 const api = new LolApi({
   key: env.SECRET_KEY_RIOT,

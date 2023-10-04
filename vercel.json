@@ -1,10 +1,9 @@
 {
-    "version": 2,
     "outputDirectory": "build",
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "/src/server.ts"
+            "destination": "/api/serverless.ts"
         }
     ]
 }

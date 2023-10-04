@@ -15,10 +15,10 @@
     "zod": "3.22.3"
   },
   "scripts": {
-    "vercel": "vercel dev",
     "dev": "tsx watch src/server.ts",
-    "start": "node build/server.js",
-    "build": "tsup src --out-dir build"
+    "vercel": "vercel dev",
+    "build": "tsc -p tsconfig.json",
+    "build-dev": "tsup src --out-dir build"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "2.1.0",
