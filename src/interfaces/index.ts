@@ -15,3 +15,8 @@ export interface UserWins {
 export interface QueryObject {
   [key: string]: string;
 }
+
+export interface Weapons {
+  name: string;
+  type: string;
+}

@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/http/routes.ts
@@ -183,12 +193,56 @@ async function game(request, reply) {
   reply.send(response);
 }
 
+// src/http/controllers/warzone/weapons.ts
+var import_zod5 = require("zod");
+
+// src/helpers/index.ts
+var import_cheerio = __toESM(require("cheerio"));
+var import_puppeteer = __toESM(require("puppeteer"));
+function extractData(html) {
+  const $ = import_cheerio.default.load(html);
+  return $;
+}
+async function getPageContent(url) {
+  const browser = await import_puppeteer.default.launch({ headless: "new" });
+  const page = await browser.newPage();
+  await page.goto(url);
+  const content = await page.content();
+  await browser.close();
+  return content;
+}
+
+// src/http/controllers/warzone/weapons.ts
+async function weapons(request, reply) {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const weaponsQuerySchema = import_zod5.z.object({
+    output: import_zod5.z.enum(["json", "txt"]).default("txt")
+  });
+  const { output } = weaponsQuerySchema.parse(request.query);
+  const content = await getPageContent(url);
+  const $ = extractData(content);
+  const weapons2 = [];
+  $(".items-row .item-info").each((_, elemet) => {
+    const name = $(elemet).find(".contentheading").text().trim();
+    const type = $(elemet).find(".field-value").first().text().trim();
+    weapons2.push({ name, type });
+  });
+  const weaponIndex = Math.floor(Math.random() * weapons2.length);
+  const weaponChosen = weapons2[weaponIndex];
+  if (output === "txt") {
+    const { name, type } = weaponChosen;
+    reply.send(`A sua arma no Warzone II \xE9 uma "${type}" ${name}`);
+  }
+  reply.send(weaponChosen);
+}
+
 // src/http/routes.ts
 async function appRoutes(app) {
   app.get("/leagueoflegends/ranked/:username", ranked);
   app.get("/leagueoflegends/champion", random);
   app.get("/leagueoflegends/champion/:championName", findByName);
   app.get("/jokenpo/:userChoice", game);
+  app.get("/warzone/weapons", weapons);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

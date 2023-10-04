@@ -36,7 +36,7 @@ module.exports = __toCommonJS(app_exports);
 var import_fastify = __toESM(require("fastify"));
 var import_cors = __toESM(require("@fastify/cors"));
 var import_multipart = __toESM(require("@fastify/multipart"));
-var import_zod5 = require("zod");
+var import_zod6 = require("zod");
 
 // src/http/controllers/leagueoflegends/ranked.ts
 var import_twisted = require("twisted");
@@ -197,20 +197,62 @@ async function game(request, reply) {
   reply.send(response);
 }
 
+// src/http/controllers/warzone/weapons.ts
+var import_zod5 = require("zod");
+
+// src/helpers/index.ts
+var import_cheerio = __toESM(require("cheerio"));
+var import_puppeteer = __toESM(require("puppeteer"));
+function capitalizeFirstLetter(word) {
+  if (word) {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }
+  return word;
+}
+function extractData(html) {
+  const $ = import_cheerio.default.load(html);
+  return $;
+}
+async function getPageContent(url) {
+  const browser = await import_puppeteer.default.launch({ headless: "new" });
+  const page = await browser.newPage();
+  await page.goto(url);
+  const content = await page.content();
+  await browser.close();
+  return content;
+}
+
+// src/http/controllers/warzone/weapons.ts
+async function weapons(request, reply) {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const weaponsQuerySchema = import_zod5.z.object({
+    output: import_zod5.z.enum(["json", "txt"]).default("txt")
+  });
+  const { output } = weaponsQuerySchema.parse(request.query);
+  const content = await getPageContent(url);
+  const $ = extractData(content);
+  const weapons2 = [];
+  $(".items-row .item-info").each((_, elemet) => {
+    const name = $(elemet).find(".contentheading").text().trim();
+    const type = $(elemet).find(".field-value").first().text().trim();
+    weapons2.push({ name, type });
+  });
+  const weaponIndex = Math.floor(Math.random() * weapons2.length);
+  const weaponChosen = weapons2[weaponIndex];
+  if (output === "txt") {
+    const { name, type } = weaponChosen;
+    reply.send(`A sua arma no Warzone II \xE9 uma "${type}" ${name}`);
+  }
+  reply.send(weaponChosen);
+}
+
 // src/http/routes.ts
 async function appRoutes(app2) {
   app2.get("/leagueoflegends/ranked/:username", ranked);
   app2.get("/leagueoflegends/champion", random);
   app2.get("/leagueoflegends/champion/:championName", findByName);
   app2.get("/jokenpo/:userChoice", game);
-}
-
-// src/helpers/index.ts
-function capitalizeFirstLetter(word) {
-  if (word) {
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  }
-  return word;
+  app2.get("/warzone/weapons", weapons);
 }
 
 // src/http/hooks/useValidation.ts
@@ -240,7 +282,7 @@ app.register(appRoutes, { prefix: "api" });
 app.addHook("preValidation", useValidation);
 app.setErrorHandler((error, request, reply) => {
   const { output } = request.query;
-  if (error instanceof import_zod5.ZodError) {
+  if (error instanceof import_zod6.ZodError) {
     if (output === "txt") {
       const { errors } = error;
       const message = errors.map((error2) => error2.message).join(" | ");

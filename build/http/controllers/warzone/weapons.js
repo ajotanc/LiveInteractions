@@ -27,22 +27,17 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/helpers/index.ts
-var helpers_exports = {};
-__export(helpers_exports, {
-  capitalizeFirstLetter: () => capitalizeFirstLetter,
-  extractData: () => extractData,
-  getPageContent: () => getPageContent
+// src/http/controllers/warzone/weapons.ts
+var weapons_exports = {};
+__export(weapons_exports, {
+  weapons: () => weapons
 });
-module.exports = __toCommonJS(helpers_exports);
+module.exports = __toCommonJS(weapons_exports);
+var import_zod = require("zod");
+
+// src/helpers/index.ts
 var import_cheerio = __toESM(require("cheerio"));
 var import_puppeteer = __toESM(require("puppeteer"));
-function capitalizeFirstLetter(word) {
-  if (word) {
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  }
-  return word;
-}
 function extractData(html) {
   const $ = import_cheerio.default.load(html);
   return $;
@@ -55,9 +50,31 @@ async function getPageContent(url) {
   await browser.close();
   return content;
 }
+
+// src/http/controllers/warzone/weapons.ts
+async function weapons(request, reply) {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const weaponsQuerySchema = import_zod.z.object({
+    output: import_zod.z.enum(["json", "txt"]).default("txt")
+  });
+  const { output } = weaponsQuerySchema.parse(request.query);
+  const content = await getPageContent(url);
+  const $ = extractData(content);
+  const weapons2 = [];
+  $(".items-row .item-info").each((_, elemet) => {
+    const name = $(elemet).find(".contentheading").text().trim();
+    const type = $(elemet).find(".field-value").first().text().trim();
+    weapons2.push({ name, type });
+  });
+  const weaponIndex = Math.floor(Math.random() * weapons2.length);
+  const weaponChosen = weapons2[weaponIndex];
+  if (output === "txt") {
+    const { name, type } = weaponChosen;
+    reply.send(`A sua arma no Warzone II \xE9 uma "${type}" ${name}`);
+  }
+  reply.send(weaponChosen);
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  capitalizeFirstLetter,
-  extractData,
-  getPageContent
+  weapons
 });

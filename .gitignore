@@ -4,3 +4,4 @@ biuld
 @types
 CURL.*
 yarn.lock
+.cache
