@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.register(cors, corsOptions);
 app.register(multipart);
-app.register(appRoutes, { prefix: "api" });
+app.register(appRoutes);
 
 app.addHook("preValidation", useValidation);
 
