@@ -6,7 +6,7 @@ const app = Fastify({
 });
 
 app.register(routes, {
-  prefix: "/api/v1",
+  prefix: "/",
 });
 
 export default async (request: FastifyRequest, reply: FastifyReply) => {
