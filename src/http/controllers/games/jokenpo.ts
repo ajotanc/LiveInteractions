@@ -25,7 +25,7 @@ export async function game(request: FastifyRequest, reply: FastifyReply) {
   const { userChoice } = jokenpoParamSchema.parse(request.params);
 
   const userWins = {
-    pedra: "terousa",
+    pedra: "tesoura",
     papel: "pedra",
     tesoura: "papel",
   } as UserWins;
@@ -35,11 +35,19 @@ export async function game(request: FastifyRequest, reply: FastifyReply) {
   let winner;
   let message;
 
-  userChoice === choiceComputer
-    ? ([winner, message] = ["nobody", "Empatou"])
-    : userWins[userChoice] === choiceComputer
-    ? ([winner, message] = ["user", "Você venceu"])
-    : ([winner, message] = ["computer", "Você perdeu"]);
+  switch (true) {
+    case userChoice === choiceComputer:
+      winner = "nobody";
+      message = "Empatou";
+      break;
+    case userWins[userChoice] === choiceComputer:
+      winner = "user";
+      message = "Você venceu";
+      break;
+    default:
+      winner = "computer";
+      message = "Você perdeu";
+  }
 
   const response = `Você escolheu ${userChoice}, o computador escolheu ${choiceComputer}. ${message}! Jogar novamente?`;
 
