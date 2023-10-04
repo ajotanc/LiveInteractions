@@ -20,7 +20,7 @@ const corsOptions = {
   origin: "*",
 };
 
-app.register(routes, { prefix: "/api/v1" });
+app.register(routes);
 app.register(cors, corsOptions);
 app.register(multipart);
 
