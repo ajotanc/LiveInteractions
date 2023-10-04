@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { extractData, getPageContent } from "@/helpers";
+import { extractData } from "@/helpers";
 import { Weapons } from "@/interfaces";
 
 export async function weapons(request: FastifyRequest, reply: FastifyReply) {
@@ -12,10 +12,9 @@ export async function weapons(request: FastifyRequest, reply: FastifyReply) {
 
   const { output } = weaponsQuerySchema.parse(request.query);
 
-  const content = await getPageContent(url);
-  const $ = extractData(content);
-
   const weapons: Weapons[] = [];
+
+  const $ = await extractData();
 
   $(".items-row .item-info").each((_, elemet) => {
     const name = $(elemet).find(".contentheading").text().trim();

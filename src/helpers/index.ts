@@ -1,5 +1,5 @@
+import axios from "axios";
 import cheerio from "cheerio";
-import puppeteer from "puppeteer";
 
 export function capitalizeFirstLetter(word: string): string {
   if (word) {
@@ -9,19 +9,10 @@ export function capitalizeFirstLetter(word: string): string {
   return word;
 }
 
-export function extractData(html: string | Buffer) {
-  const $ = cheerio.load(html);
-  return $;
-}
+export async function extractData() {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const { data } = await axios.get(url);
 
-export async function getPageContent(url: string) {
-  const browser = await puppeteer.launch({ headless: "new" });
-  const page = await browser.newPage();
-
-  await page.goto(url);
-
-  const content = await page.content();
-  await browser.close();
-
+  const content = cheerio.load(data);
   return content;
 }

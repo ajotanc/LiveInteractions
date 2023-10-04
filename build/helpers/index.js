@@ -31,33 +31,25 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var helpers_exports = {};
 __export(helpers_exports, {
   capitalizeFirstLetter: () => capitalizeFirstLetter,
-  extractData: () => extractData,
-  getPageContent: () => getPageContent
+  extractData: () => extractData
 });
 module.exports = __toCommonJS(helpers_exports);
+var import_axios = __toESM(require("axios"));
 var import_cheerio = __toESM(require("cheerio"));
-var import_puppeteer = __toESM(require("puppeteer"));
 function capitalizeFirstLetter(word) {
   if (word) {
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }
   return word;
 }
-function extractData(html) {
-  const $ = import_cheerio.default.load(html);
-  return $;
-}
-async function getPageContent(url) {
-  const browser = await import_puppeteer.default.launch({ headless: "new" });
-  const page = await browser.newPage();
-  await page.goto(url);
-  const content = await page.content();
-  await browser.close();
+async function extractData() {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const { data } = await import_axios.default.get(url);
+  const content = import_cheerio.default.load(data);
   return content;
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   capitalizeFirstLetter,
-  extractData,
-  getPageContent
+  extractData
 });

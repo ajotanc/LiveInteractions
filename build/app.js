@@ -201,24 +201,18 @@ async function game(request, reply) {
 var import_zod5 = require("zod");
 
 // src/helpers/index.ts
+var import_axios = __toESM(require("axios"));
 var import_cheerio = __toESM(require("cheerio"));
-var import_puppeteer = __toESM(require("puppeteer"));
 function capitalizeFirstLetter(word) {
   if (word) {
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }
   return word;
 }
-function extractData(html) {
-  const $ = import_cheerio.default.load(html);
-  return $;
-}
-async function getPageContent(url) {
-  const browser = await import_puppeteer.default.launch({ headless: "new" });
-  const page = await browser.newPage();
-  await page.goto(url);
-  const content = await page.content();
-  await browser.close();
+async function extractData() {
+  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
+  const { data } = await import_axios.default.get(url);
+  const content = import_cheerio.default.load(data);
   return content;
 }
 
@@ -229,9 +223,8 @@ async function weapons(request, reply) {
     output: import_zod5.z.enum(["json", "txt"]).default("txt")
   });
   const { output } = weaponsQuerySchema.parse(request.query);
-  const content = await getPageContent(url);
-  const $ = extractData(content);
   const weapons2 = [];
+  const $ = await extractData();
   $(".items-row .item-info").each((_, elemet) => {
     const name = $(elemet).find(".contentheading").text().trim();
     const type = $(elemet).find(".field-value").first().text().trim();
