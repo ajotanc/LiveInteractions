@@ -3,7 +3,7 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
 
-import { appRoutes } from "./http/routes";
+// import { appRoutes } from "./http/routes";
 import { useValidation } from "./http/hooks/useValidation";
 
 import { env } from "./env";
@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.register(cors, corsOptions);
 app.register(multipart);
-app.register(appRoutes);
+// app.register(appRoutes);
 
 app.addHook("preValidation", useValidation);
 

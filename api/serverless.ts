@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
-import { appRoutes } from "../src/http/routes";
+import { routes } from "../src/http/routes";
 
 dotenv.config();
 
@@ -8,7 +8,7 @@ const app = Fastify({
   logger: false,
 });
 
-app.register(appRoutes, {
+app.register(routes, {
   prefix: "/api",
 });
 
