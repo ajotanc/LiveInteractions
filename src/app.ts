@@ -1,4 +1,4 @@
-import fastify from "fastify";
+import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
@@ -10,42 +10,51 @@ import { QueryObject } from "./interfaces";
 import { routes } from "./http/routes";
 
 export const app = fastify();
+app.register(instance);
 
-const corsOptions = {
-  origin: "*",
-};
+export async function instance(
+  instance: FastifyInstance,
+  _opts: FastifyServerOptions,
+  done,
+) {
+  const corsOptions = {
+    origin: "*",
+  };
 
-app.register(routes);
-app.register(cors, corsOptions);
-app.register(multipart);
+  instance.register(routes);
+  instance.register(cors, corsOptions);
+  instance.register(multipart);
 
-app.addHook("preValidation", useValidation);
+  instance.addHook("preValidation", useValidation);
 
-app.setErrorHandler((error, request, reply) => {
-  const { output } = request.query as QueryObject;
-  console.log(output);
-  if (error instanceof ZodError) {
-    if (output === "txt") {
-      const { errors } = error;
-      const message = errors.map((error) => error.message).join(" | ");
+  instance.setErrorHandler((error, request, reply) => {
+    const { output } = request.query as QueryObject;
 
-      return reply.send(message);
+    if (error instanceof ZodError) {
+      if (output === "txt") {
+        const { errors } = error;
+        const message = errors.map((error) => error.message).join(" | ");
+
+        return reply.send(message);
+      }
+
+      return reply
+        .status(404)
+        .send({ message: "Validation error.", issues: error.format() });
     }
 
-    return reply
-      .status(404)
-      .send({ message: "Validation error.", issues: error.format() });
-  }
+    if (env.NODE_ENV !== "production") {
+      console.error(error);
+    } else {
+      // TODO: Here we should log to on external tool like DataDog/NewReplic/Sentry
+    }
 
-  if (env.NODE_ENV !== "production") {
-    console.error(error);
-  } else {
-    // TODO: Here we should log to on external tool like DataDog/NewReplic/Sentry
-  }
+    if (output === "txt") {
+      reply.send(error.message);
+    }
 
-  if (output === "txt") {
-    reply.send(error.message);
-  }
+    return reply.status(500).send({ message: "Internal server error." });
+  });
 
-  return reply.status(500).send({ message: "Internal server error." });
-});
+  done();
+}
