@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { extractData } from "@/helpers";
-import { Weapons } from "@/interfaces";
+import { extractData } from "#/helpers";
+import { Weapons } from "#/interfaces";
 
 export async function weapons(request: FastifyRequest, reply: FastifyReply) {
   const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";

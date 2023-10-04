@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ZodIssueOptionalMessage, z } from "zod";
-import { UserWins, CustomZodIssue } from "@/interfaces";
+import { UserWins, CustomZodIssue } from "#/interfaces";
 
 export async function game(request: FastifyRequest, reply: FastifyReply) {
   const choices = ["pedra", "papel", "tesoura"] as [string, ...string[]];
