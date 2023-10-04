@@ -253,8 +253,10 @@ app.setErrorHandler((error, request, reply) => {
   }
   if (error instanceof ChampionNotFound) {
     const { output } = request.query;
-    const { message } = error;
-    reply.status(404).send(output === "txt" ? message : { message: error.message });
+    if (output === "txt") {
+      reply.send(error.message);
+    }
+    reply.status(404).send({ message: error.message });
   }
   return reply.status(500).send({ message: "Internal server error." });
 });
