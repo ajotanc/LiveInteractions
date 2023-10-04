@@ -1,4 +1,6 @@
-export interface SummonerLeagueInterface {
+import { ZodIssueOptionalMessage } from "zod";
+
+export type SummonerLeagueInterface = {
   queueType?: string;
   wins?: number;
   veteran?: boolean;
@@ -6,17 +8,21 @@ export interface SummonerLeagueInterface {
   rank?: string;
   tier?: string;
   leaguePoints?: number;
-}
+};
 
-export interface UserWins {
+export type UserWins = {
   [key: string]: string;
-}
+};
 
-export interface QueryObject {
+export type QueryObject = {
   [key: string]: string;
-}
+};
 
-export interface Weapons {
+export type Weapons = {
   name: string;
   type: string;
-}
+};
+
+export type CustomZodIssue = ZodIssueOptionalMessage & {
+  received: string | undefined;
+};

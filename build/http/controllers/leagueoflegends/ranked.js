@@ -52,9 +52,13 @@ async function ranked(request, reply) {
   const userQuerySchema = import_zod2.z.object({
     output: import_zod2.z.enum(["json", "txt"]).default("txt"),
     queue: import_zod2.z.enum(["solo", "flex"], {
-      errorMap: (issue, ctx) => ({
-        message: `Optou por "${issue.received}", uma escolha inv\xE1lida. As op\xE7\xF5es corretas s\xE3o solo ou flex`
-      })
+      errorMap: (issue) => {
+        const { received, path } = issue;
+        return {
+          message: `Optou por "${received}", uma escolha inv\xE1lida. As op\xE7\xF5es corretas s\xE3o solo ou flex`,
+          path
+        };
+      }
     }).default("solo").transform(
       (value) => value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
     )

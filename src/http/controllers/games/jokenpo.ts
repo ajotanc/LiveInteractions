@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { z } from "zod";
-import { UserWins } from "@/interfaces";
+import { ZodIssueOptionalMessage, z } from "zod";
+import { UserWins, CustomZodIssue } from "@/interfaces";
 
 export async function game(request: FastifyRequest, reply: FastifyReply) {
   const choices = ["pedra", "papel", "tesoura"] as [string, ...string[]];
@@ -11,9 +11,13 @@ export async function game(request: FastifyRequest, reply: FastifyReply) {
 
   const jokenpoParamSchema = z.object({
     userChoice: z.enum(choices, {
-      errorMap: (issue: any, ctx: any) => ({
-        message: `Optou por "${issue.received}", uma escolha inválida. As opções corretas são pedra, papel ou tesoura.`,
-      }),
+      errorMap: (issue: ZodIssueOptionalMessage) => {
+        const { received, path } = issue as CustomZodIssue;
+        return {
+          message: `Optou por "${received}", uma escolha inválida. As opções corretas são pedra, papel ou tesoura`,
+          path,
+        };
+      },
     }),
   });
 

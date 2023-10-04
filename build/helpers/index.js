@@ -34,7 +34,6 @@ __export(helpers_exports, {
   extractData: () => extractData
 });
 module.exports = __toCommonJS(helpers_exports);
-var import_axios = __toESM(require("axios"));
 var import_cheerio = __toESM(require("cheerio"));
 function capitalizeFirstLetter(word) {
   if (word) {
@@ -42,9 +41,9 @@ function capitalizeFirstLetter(word) {
   }
   return word;
 }
-async function extractData() {
-  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
-  const { data } = await import_axios.default.get(url);
+async function extractData(url) {
+  const response = await fetch(url);
+  const data = await response.text();
   const content = import_cheerio.default.load(data);
   return content;
 }

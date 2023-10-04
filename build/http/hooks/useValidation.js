@@ -35,7 +35,6 @@ __export(useValidation_exports, {
 module.exports = __toCommonJS(useValidation_exports);
 
 // src/helpers/index.ts
-var import_axios = __toESM(require("axios"));
 var import_cheerio = __toESM(require("cheerio"));
 function capitalizeFirstLetter(word) {
   if (word) {

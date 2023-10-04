@@ -31,9 +31,13 @@ async function game(request, reply) {
   });
   const jokenpoParamSchema = import_zod.z.object({
     userChoice: import_zod.z.enum(choices, {
-      errorMap: (issue, ctx) => ({
-        message: `Optou por "${issue.received}", uma escolha inv\xE1lida. As op\xE7\xF5es corretas s\xE3o pedra, papel ou tesoura.`
-      })
+      errorMap: (issue) => {
+        const { received, path } = issue;
+        return {
+          message: `Optou por "${received}", uma escolha inv\xE1lida. As op\xE7\xF5es corretas s\xE3o pedra, papel ou tesoura`,
+          path
+        };
+      }
     })
   });
   const { output } = jokenpoQuerySchema.parse(request.query);

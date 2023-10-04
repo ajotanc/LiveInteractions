@@ -36,11 +36,10 @@ module.exports = __toCommonJS(weapons_exports);
 var import_zod = require("zod");
 
 // src/helpers/index.ts
-var import_axios = __toESM(require("axios"));
 var import_cheerio = __toESM(require("cheerio"));
-async function extractData() {
-  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
-  const { data } = await import_axios.default.get(url);
+async function extractData(url) {
+  const response = await fetch(url);
+  const data = await response.text();
   const content = import_cheerio.default.load(data);
   return content;
 }
@@ -53,8 +52,9 @@ async function weapons(request, reply) {
   });
   const { output } = weaponsQuerySchema.parse(request.query);
   const weapons2 = [];
-  const $ = await extractData();
-  $(".items-row .item-info").each((_, elemet) => {
+  const $ = await extractData(url);
+  const items = $(".items-row .item-info");
+  items.each((_, elemet) => {
     const name = $(elemet).find(".contentheading").text().trim();
     const type = $(elemet).find(".field-value").first().text().trim();
     weapons2.push({ name, type });

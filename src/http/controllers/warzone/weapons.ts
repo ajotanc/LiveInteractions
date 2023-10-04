@@ -14,9 +14,10 @@ export async function weapons(request: FastifyRequest, reply: FastifyReply) {
 
   const weapons: Weapons[] = [];
 
-  const $ = await extractData();
+  const $ = await extractData(url);
+  const items = $(".items-row .item-info");
 
-  $(".items-row .item-info").each((_, elemet) => {
+  items.each((_, elemet) => {
     const name = $(elemet).find(".contentheading").text().trim();
     const type = $(elemet).find(".field-value").first().text().trim();
 

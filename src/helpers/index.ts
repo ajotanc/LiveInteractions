@@ -1,4 +1,3 @@
-import axios from "axios";
 import cheerio from "cheerio";
 
 export function capitalizeFirstLetter(word: string): string {
@@ -9,10 +8,10 @@ export function capitalizeFirstLetter(word: string): string {
   return word;
 }
 
-export async function extractData() {
-  const url = "https://www.gamesatlas.com/cod-warzone-2/weapons/";
-  const { data } = await axios.get(url);
-
+export async function extractData(url: string) {
+  const response = await fetch(url);
+  const data = await response.text();
   const content = cheerio.load(data);
+
   return content;
 }

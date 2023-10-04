@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LolApi, Constants } from "twisted";
-import { z } from "zod";
+import { ZodIssueOptionalMessage, z } from "zod";
+import { CustomZodIssue, SummonerLeagueInterface } from "@/interfaces";
 import { env } from "@/env";
-import { SummonerLeagueInterface } from "@/interfaces";
 
 const api = new LolApi({
   key: env.SECRET_KEY_RIOT,
@@ -17,9 +17,13 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
     output: z.enum(["json", "txt"]).default("txt"),
     queue: z
       .enum(["solo", "flex"], {
-        errorMap: (issue: any, ctx: any) => ({
-          message: `Optou por "${issue.received}", uma escolha inválida. As opções corretas são solo ou flex`,
-        }),
+        errorMap: (issue: ZodIssueOptionalMessage) => {
+          const { received, path } = issue as CustomZodIssue;
+          return {
+            message: `Optou por "${received}", uma escolha inválida. As opções corretas são solo ou flex`,
+            path,
+          };
+        },
       })
       .default("solo")
       .transform((value) =>
