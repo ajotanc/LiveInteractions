@@ -7,6 +7,7 @@ import { useValidation } from "./http/hooks/useValidation";
 
 import { env } from "./env";
 import { QueryObject } from "./interfaces";
+import { routes } from "./http/routes";
 
 export const app = fastify();
 
@@ -14,6 +15,7 @@ const corsOptions = {
   origin: "*",
 };
 
+app.register(routes, { prefix: "/api/v1" });
 app.register(cors, corsOptions);
 app.register(multipart);
 
