@@ -1,9 +1,4 @@
-import fastify, {
-  FastifyInstance,
-  FastifyReply,
-  FastifyRequest,
-  FastifyServerOptions,
-} from "fastify";
+import fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
@@ -28,7 +23,7 @@ app.addHook("preValidation", useValidation);
 
 app.setErrorHandler((error, request, reply) => {
   const { output } = request.query as QueryObject;
-
+  console.log(output);
   if (error instanceof ZodError) {
     if (output === "txt") {
       const { errors } = error;
