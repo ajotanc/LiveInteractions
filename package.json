@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node build/server.js",
-    "build": "tsup src --out-dir build"
+    "build-dev": "tsup src --out-dir build",
+    "build": "tsc && node build/server.js"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "2.1.0",
