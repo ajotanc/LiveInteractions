@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { QueryObject } from "../../../interfaces";
-import { capitalizeFirstLetter } from ""../../../helpers"";
+import { QueryObject } from "../../interfaces";
+import { capitalizeFirstLetter } from "../../helpers";
 
 export function useValidation(
   request: FastifyRequest,
