@@ -7,3 +7,11 @@ export interface SummonerLeagueInterface {
   tier?: string;
   leaguePoints?: number;
 }
+
+export interface UserWins {
+  [key: string]: string;
+}
+
+export interface QueryObject {
+  [key: string]: string;
+}

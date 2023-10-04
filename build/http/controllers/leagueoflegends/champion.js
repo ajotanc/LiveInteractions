@@ -30,7 +30,7 @@ module.exports = __toCommonJS(champion_exports);
 // src/errors/champion-not-found.ts
 var ChampionNotFound = class extends Error {
   constructor() {
-    super("Champion chosen not found!");
+    super("Campe\xE3o escolhido n\xE3o encontrado");
   }
 };
 
@@ -77,14 +77,10 @@ async function findByName(request, reply) {
   const { output } = championQuerySchema.parse(request.query);
   const { championName } = championParamSchema.parse(request.params);
   const champions = await allChampions();
-  const championKeys = Object.keys(champions);
-  const randomIndex = championKeys.find(
-    (champion) => champion.toLocaleLowerCase() === championName
-  );
-  if (!randomIndex) {
+  const championChosen = champions[championName];
+  if (!championChosen) {
     throw new ChampionNotFound();
   }
-  const championChosen = champions[randomIndex];
   if (output === "txt") {
     const { name, title, blurb: description } = championChosen;
     reply.send(`${name}, ${title}. ${description}`);

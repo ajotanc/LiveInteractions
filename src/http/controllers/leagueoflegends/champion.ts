@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export async function lastVersion() {
   const lastVersion = await fetch(
-    "https://ddragon.leagueoflegends.com/api/versions.json"
+    "https://ddragon.leagueoflegends.com/api/versions.json",
   );
 
   const [version] = await lastVersion.json();
@@ -15,7 +15,7 @@ export async function allChampions() {
   const version = await lastVersion();
 
   const response = await fetch(
-    `https://ddragon.leagueoflegends.com/cdn/${version}/data/pt_BR/champion.json`
+    `https://ddragon.leagueoflegends.com/cdn/${version}/data/pt_BR/champion.json`,
   );
 
   const { data: champions } = await response.json();
@@ -57,17 +57,11 @@ export async function findByName(request: FastifyRequest, reply: FastifyReply) {
   const { championName } = championParamSchema.parse(request.params);
 
   const champions = await allChampions();
+  const championChosen = champions[championName];
 
-  const championKeys = Object.keys(champions);
-  const randomIndex = championKeys.find(
-    (champion) => champion.toLocaleLowerCase() === championName
-  );
-
-  if (!randomIndex) {
+  if (!championChosen) {
     throw new ChampionNotFound();
   }
-
-  const championChosen = champions[randomIndex];
 
   if (output === "txt") {
     const { name, title, blurb: description } = championChosen;

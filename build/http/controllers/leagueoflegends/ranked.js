@@ -51,7 +51,11 @@ async function ranked(request, reply) {
   });
   const userQuerySchema = import_zod2.z.object({
     output: import_zod2.z.enum(["json", "txt"]).default("txt"),
-    queue: import_zod2.z.enum(["solo", "flex"]).default("solo").transform(
+    queue: import_zod2.z.enum(["solo", "flex"], {
+      errorMap: (issue, ctx) => ({
+        message: `Optou por "${issue.received}", uma escolha inv\xE1lida. As op\xE7\xF5es corretas s\xE3o solo ou flex`
+      })
+    }).default("solo").transform(
       (value) => value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
     )
   });
@@ -75,10 +79,10 @@ async function ranked(request, reply) {
   ) || {};
   if (output === "txt") {
     if (!tier) {
-      reply.send(`${username} is not ranked in Flex mode`);
+      reply.send(`${username} n\xE3o tem classifica\xE7\xE3o no modo Flex`);
     }
     reply.send(
-      `${username} is ${tier} ${rank}, with ${points} pdl(s), ${wins} wins and ${losses} losses`
+      `${username} \xE9 ${tier} ${rank}, com ${points} pdl(s), ${wins} vit\xF3ria(s) e ${losses} derrota(s)`
     );
   }
   reply.send({ username, tier, rank, points, wins, losses });

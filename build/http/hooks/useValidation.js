@@ -23,13 +23,27 @@ __export(useValidation_exports, {
   useValidation: () => useValidation
 });
 module.exports = __toCommonJS(useValidation_exports);
+
+// src/helpers/index.ts
+function capitalizeFirstLetter(word) {
+  if (word) {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }
+  return word;
+}
+
+// src/http/hooks/useValidation.ts
 function useValidation(request, _reply, done) {
   const query = request.query;
+  const params = request.params;
   if (query.queue) {
     query.queue = query.queue.toLowerCase();
   }
-  if (query.championName) {
-    query.championName = query.championName.toLowerCase();
+  if (params.championName) {
+    params.championName = capitalizeFirstLetter(params.championName);
+  }
+  if (params.userChoice) {
+    params.userChoice = params.userChoice.toLowerCase();
   }
   done();
 }

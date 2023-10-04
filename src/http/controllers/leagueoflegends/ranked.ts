@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LolApi, Constants } from "twisted";
 import { z } from "zod";
-import { SummonerLeagueInterface } from "@/interfaces";
 import { env } from "@/env";
+import { SummonerLeagueInterface } from "@/interfaces";
 
 const api = new LolApi({
   key: env.SECRET_KEY_RIOT,
@@ -16,10 +16,14 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
   const userQuerySchema = z.object({
     output: z.enum(["json", "txt"]).default("txt"),
     queue: z
-      .enum(["solo", "flex"])
+      .enum(["solo", "flex"], {
+        errorMap: (issue: any, ctx: any) => ({
+          message: `Optou por "${issue.received}", uma escolha inválida. As opções corretas são solo ou flex`,
+        }),
+      })
       .default("solo")
       .transform((value) =>
-        value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR"
+        value === "solo" ? "RANKED_SOLO_5x5" : "RANKED_FLEX_SR",
       ),
   });
 
@@ -32,7 +36,7 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
 
   const { response } = await api.League.bySummoner(
     id,
-    Constants.Regions.BRAZIL
+    Constants.Regions.BRAZIL,
   );
 
   const {
@@ -42,16 +46,16 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
     wins,
     losses,
   }: SummonerLeagueInterface = response.find(
-    ({ queueType }) => queueType === queue
+    ({ queueType }) => queueType === queue,
   ) || {};
 
   if (output === "txt") {
     if (!tier) {
-      reply.send(`${username} is not ranked in Flex mode`);
+      reply.send(`${username} não tem classificação no modo Flex`);
     }
 
     reply.send(
-      `${username} is ${tier} ${rank}, with ${points} pdl(s), ${wins} wins and ${losses} losses`
+      `${username} é ${tier} ${rank}, com ${points} pdl(s), ${wins} vitória(s) e ${losses} derrota(s)`,
     );
   }
 

@@ -25,7 +25,7 @@ __export(champion_not_found_exports, {
 module.exports = __toCommonJS(champion_not_found_exports);
 var ChampionNotFound = class extends Error {
   constructor() {
-    super("Champion chosen not found!");
+    super("Campe\xE3o escolhido n\xE3o encontrado");
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
