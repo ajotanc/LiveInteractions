@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import { appRoutes } from "@/http/routes";
+import { appRoutes } from "../src/http/routes";
 
 // Require the framework
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
