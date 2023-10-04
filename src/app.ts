@@ -21,7 +21,7 @@ export async function instance(
     origin: "*",
   };
 
-  instance.register(routes);
+  instance.register(routes, { prefix: "/api/v1" });
   instance.register(cors, corsOptions);
   instance.register(multipart);
 

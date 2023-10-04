@@ -25,8 +25,5 @@ export const routes: FastifyPluginAsync = async (server) => {
 
       done();
     },
-    {
-      prefix: "/api/v1",
-    },
   );
 };
