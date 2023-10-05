@@ -1,6 +1,8 @@
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import fastifyFirebase from "fastify-firebase";
+import fastifyCron from "fastify-cron";
 import { ZodError } from "zod";
 
 import { useValidation } from "./http/hooks/useValidation";
@@ -21,11 +23,24 @@ export async function instance(
     origin: "*",
   };
 
+  instance.register(fastifyFirebase, env.FIREBASE_PRIVATY_KEY);
   instance.register(routes, { prefix: "/api/v1" });
   instance.register(cors, corsOptions);
   instance.register(multipart);
 
   instance.addHook("preValidation", useValidation);
+
+  instance.register(fastifyCron, {
+    jobs: [
+      {
+        cronTime: "12 21 * * 3",
+        onTick: () => {
+          console.log("teste");
+        },
+        start: true,
+      },
+    ],
+  });
 
   instance.setErrorHandler((error, request, reply) => {
     const { output } = request.query as QueryObject;
