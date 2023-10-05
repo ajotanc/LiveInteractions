@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LolApi, Constants } from "twisted";
 import { ZodIssueOptionalMessage, z } from "zod";
+
 import { CustomZodIssue, SummonerLeagueInterface } from "../../../interfaces";
 import { env } from "../../../env";
 
@@ -34,14 +35,13 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
   const { username } = userParamSchema.parse(request.params);
   const { queue, output } = userQuerySchema.parse(request.query);
 
+  const region = Constants.Regions.BRAZIL;
+
   const {
     response: { id },
-  } = await api.Summoner.getByName(username, Constants.Regions.BRAZIL);
+  } = await api.Summoner.getByName(username, region);
 
-  const { response } = await api.League.bySummoner(
-    id,
-    Constants.Regions.BRAZIL,
-  );
+  const { response } = await api.League.bySummoner(id, region);
 
   const {
     tier,
@@ -55,7 +55,9 @@ export async function ranked(request: FastifyRequest, reply: FastifyReply) {
 
   if (output === "txt") {
     if (!tier) {
-      reply.send(`${username} não tem classificação no modo Flex`);
+      const queueChosen = queue.split("_")[1].toLowerCase();
+
+      reply.send(`${username} não tem classificação no modo ${queueChosen}`);
     }
 
     reply.send(
