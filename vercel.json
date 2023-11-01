@@ -1,9 +1,12 @@
 {
-    "outputDirectory": "build",
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/api/serverless.ts"
-        }
-    ]
+  "regions": [
+    "gru1"
+  ],
+  "outputDirectory": "build",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/serverless.ts"
+    }
+  ]
 }

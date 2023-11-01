@@ -1,4 +1,7 @@
 import cheerio from "cheerio";
+import moment from "moment-timezone";
+
+moment.locale("pt-br");
 
 export function capitalizeFirstLetter(word: string) {
   if (word) {
@@ -17,27 +20,9 @@ export async function extractData(url: string) {
 }
 
 export function convertStringDate(string: string) {
-  const months = {
-    janeiro: 0,
-    fevereiro: 1,
-    marco: 2,
-    abril: 3,
-    maio: 4,
-    junho: 5,
-    julho: 6,
-    agosto: 7,
-    setembro: 8,
-    outubro: 9,
-    novembro: 10,
-    dezembro: 11,
-  };
-
   const [day, month, year] = string.split(" de ");
-
-  const monthInLength = stringRepleace(month.toLowerCase());
-  const indexMonth = months[monthInLength];
-
-  const date = new Date(parseInt(year), indexMonth, parseInt(day));
+  const indexMonth = moment().month(month).month() + 1;
+  const date = moment(`${year}-${indexMonth}-${day}`, "YYYY-MM-DD");
 
   return date;
 }
@@ -53,11 +38,8 @@ export function stringRepleace(string: string) {
 }
 
 export function diffDays(date) {
-  const firstDate = new Date().setUTCHours(12, 0, 0, 0);
-  const secondDate = date.setUTCHours(12, 0, 0, 0);
-
-  const diffInMs = Math.abs(secondDate - firstDate);
-  const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
+  const currentDate = moment();
+  const dateFormatted = moment(date, "YYYY-MM-DD");
+  const days = dateFormatted.diff(currentDate, "days") + 1;
   return days;
 }
