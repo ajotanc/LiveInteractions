@@ -22,7 +22,8 @@ export async function extractData(url: string) {
 
 export function financingEndDate() {
   const currentDate = moment();
-  const dateFormatted = moment(env.FINANCING_END_DATE_MAGISTRIKE, "YYYY-MM-DD");
+  const dateFormatted = moment(env.FINANCING_END_DATE_MAGISTRIKE);
+
   const days = dateFormatted.diff(currentDate, "days") + 1;
   return days;
 }
