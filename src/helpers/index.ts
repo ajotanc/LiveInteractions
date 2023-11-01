@@ -1,5 +1,6 @@
-import cheerio from "cheerio";
 import moment from "moment-timezone";
+import cheerio from "cheerio";
+import { env } from "../env";
 
 moment.locale("pt-br");
 
@@ -19,27 +20,9 @@ export async function extractData(url: string) {
   return content;
 }
 
-export function convertStringDate(string: string) {
-  const [day, month, year] = string.split(" de ");
-  const indexMonth = moment().month(month).month() + 1;
-  const date = moment(`${year}-${indexMonth}-${day}`, "YYYY-MM-DD");
-
-  return date;
-}
-
-export function stringRepleace(string: string) {
-  return string
-    .replace(/[áàãâä]/g, "a")
-    .replace(/[éèêë]/g, "e")
-    .replace(/[íìîï]/g, "i")
-    .replace(/[óòõôö]/g, "o")
-    .replace(/[úùûü]/g, "u")
-    .replace(/[ç]/g, "c");
-}
-
-export function diffDays(date) {
+export function financingEndDate() {
   const currentDate = moment();
-  const dateFormatted = moment(date, "YYYY-MM-DD");
+  const dateFormatted = moment(env.FINANCING_END_DATE_MAGISTRIKE, "YYYY-MM-DD");
   const days = dateFormatted.diff(currentDate, "days") + 1;
   return days;
 }

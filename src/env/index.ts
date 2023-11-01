@@ -6,6 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3333),
   SECRET_KEY_RIOT: z.string(),
   FIREBASE_PRIVATY_KEY: z.string().transform((value) => JSON.parse(value)),
+  FINANCING_END_DATE_MAGISTRIKE: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

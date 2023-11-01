@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { convertStringDate, diffDays, extractData } from "../../../helpers";
+import { financingEndDate } from "../../../helpers";
 
 export async function meta(request: FastifyRequest, reply: FastifyReply) {
   const metaQuerySchema = z.object({
@@ -9,19 +9,10 @@ export async function meta(request: FastifyRequest, reply: FastifyReply) {
 
   const { output } = metaQuerySchema.parse(request.query);
 
-  const json = "https://www.nuuvem.com/lp/pt/magistrike/counter.json";
-  const url = "https://www.nuuvem.com/lp/pt/magistrike";
+  const url = "https://www.nuuvem.com/lp/pt/magistrike/counter.json";
+  const days = financingEndDate();
 
-  const $ = await extractData(url);
-  const dateFormatted = $("#tiers .header")
-    .find("strong")
-    .last()
-    .text()
-    .split("!")[0];
-  const date = convertStringDate(dateFormatted);
-  const days = diffDays(date);
-
-  const response = await fetch(json);
+  const response = await fetch(url);
   const data = await response.json();
 
   const optionsCurrency = {
