@@ -9,6 +9,7 @@ import { random, findByName } from "./controllers/leagueoflegends/champion";
 import { game } from "./controllers/games/jokenpo";
 import { weapons } from "./controllers/warzone/weapons";
 import { meta } from "./controllers/magistrike/meta";
+import { getResponse } from "./controllers/others/response";
 
 export const routes: FastifyPluginAsync = async (server) => {
   server.register(
@@ -26,7 +27,10 @@ export const routes: FastifyPluginAsync = async (server) => {
 
       // WARZONE
       instance.get("/magistrike/meta", meta);
+
+      // OTHERS
+      instance.get("/others/:url", getResponse);
       done();
-    },
+    }
   );
 };
