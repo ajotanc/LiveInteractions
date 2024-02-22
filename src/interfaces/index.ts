@@ -26,3 +26,22 @@ export type Weapons = {
 export type CustomZodIssue = ZodIssueOptionalMessage & {
   received: string | undefined;
 };
+
+export type ColumnOthers = {
+  group: string;
+  urlGroup: string | false;
+  description: string;
+  father: string | false;
+  urlFather: string | false;
+};
+
+export type ParametersOthers = {
+  id?: string;
+  title?: string;
+  url: string;
+  subtitle?: string;
+  events: {
+    summary: Array<ColumnOthers>;
+    records: Array<ColumnOthers>;
+  };
+};
