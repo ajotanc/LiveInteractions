@@ -13,7 +13,5 @@ export async function getResponse(
   const { url } = othersParamsSchema.parse(request.params);
   const $ = await extractData(decodeURIComponent(url));
 
-  reply.send({
-    body: $("html").html(),
-  });
+  reply.send($("html").html());
 }
