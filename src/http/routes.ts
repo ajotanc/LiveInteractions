@@ -29,8 +29,8 @@ export const routes: FastifyPluginAsync = async (server) => {
       instance.get("/magistrike/meta", meta);
 
       // OTHERS
-      instance.get("/others/:url", getResponse);
+      instance.get("/others/:url/:id?", getResponse);
       done();
-    }
+    },
   );
 };

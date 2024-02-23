@@ -16,12 +16,13 @@ export async function getResponse(
 ): Promise<void> {
   const othersParamsSchema = z.object({
     url: z.string(),
+    id: z.string().optional(),
   });
 
-  const { url } = othersParamsSchema.parse(request.params);
+  const { id, url } = othersParamsSchema.parse(request.params);
   const $ = await extractData(decodeURIComponent(url));
 
-  const dados: Array<unknown> = [];
+  const data: Array<ParametersOthers> = [];
   const elements = $("h3.title, h4.subtitle, table.resumo, table.completo");
 
   let parameters = {
@@ -60,7 +61,7 @@ export async function getResponse(
     }
 
     if ((index + 1) % 4 === 0) {
-      dados.push(parameters);
+      data.push(parameters);
       parameters = {
         events: {
           summary: [],
@@ -71,7 +72,8 @@ export async function getResponse(
     }
   });
 
-  reply.send(dados);
+  const response = id ? data.find((element) => element.id === id) : data;
+  reply.send(response);
 }
 
 function createColumns(
