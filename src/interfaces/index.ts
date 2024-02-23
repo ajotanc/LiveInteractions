@@ -33,6 +33,8 @@ export type ColumnOthers = {
   description: string;
   father: string | false;
   urlFather: string | false;
+  required: boolean;
+  condition?: string;
 };
 
 export type ParametersOthers = {

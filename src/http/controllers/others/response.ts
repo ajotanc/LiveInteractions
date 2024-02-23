@@ -51,12 +51,12 @@ export async function getResponse(
     }
 
     if ($(element).is("table.resumo")) {
-      const columns = createColumns($, element, url, 0, 3, 1, "R");
+      const columns = createColumns($, element, url, 0, 3, 1, 4, 6, "R");
       parameters.events.summary = columns;
     }
 
     if ($(element).is("table.completo")) {
-      const columns = createColumns($, element, url, 1, 8, 2, "C");
+      const columns = createColumns($, element, url, 1, 8, 2, 5, 9999, "C");
       parameters.events.records = columns;
     }
 
@@ -83,6 +83,8 @@ function createColumns(
   nameNumber: number,
   descriptionNumber: number,
   fatherNumber: number,
+  requiredNumber: number,
+  conditionNumber: number,
   type: string,
 ): ColumnOthers[] {
   const columns = [] as ColumnOthers[];
@@ -102,6 +104,13 @@ function createColumns(
       .trim()
       .replace(/\n/g, " ");
 
+    const required = column.eq(requiredNumber).text().trim();
+    const condition = column
+      .eq(conditionNumber)
+      .text()
+      .trim()
+      .replace(/\n/g, " ");
+
     const father = column.eq(fatherNumber).text().trim() || false;
     const urlFather = column.eq(fatherNumber).find("a").attr("href") || false;
 
@@ -112,6 +121,8 @@ function createColumns(
         description,
         father,
         urlFather: urlFather ? decodeURIComponent(`${url}${urlFather}`) : false,
+        required: required === "1",
+        condition,
       });
     }
   });
