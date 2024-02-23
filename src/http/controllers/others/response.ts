@@ -102,14 +102,14 @@ function createColumns(
       .eq(descriptionNumber)
       .text()
       .trim()
-      .replace(/\n/g, " ");
+      .replace(/\n/g, "<br>");
 
     const required = column.eq(requiredNumber).text().trim();
     const condition = column
       .eq(conditionNumber)
       .text()
       .trim()
-      .replace(/\n/g, " ");
+      .replace(/\n/g, "<br>");
 
     const father = column.eq(fatherNumber).text().trim() || false;
     const urlFather = column.eq(fatherNumber).find("a").attr("href") || false;
