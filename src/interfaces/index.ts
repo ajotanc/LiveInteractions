@@ -37,9 +37,9 @@ export type ColumnOthers = {
 
 export type ParametersOthers = {
   id?: string;
-  title?: string;
+  name?: string;
   url: string;
-  subtitle?: string;
+  description?: string;
   events: {
     summary: Array<ColumnOthers>;
     records: Array<ColumnOthers>;

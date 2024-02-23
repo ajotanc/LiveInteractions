@@ -38,14 +38,14 @@ export async function getResponse(
       parameters = {
         ...parameters,
         id,
-        title: $(element).text().trim(),
+        name: $(element).text().trim(),
       };
     }
 
     if ($(element).is("h4.subtitle")) {
       parameters = {
         ...parameters,
-        subtitle: $(element).text().trim(),
+        description: $(element).text().trim(),
       };
     }
 
@@ -75,8 +75,8 @@ export async function getResponse(
 }
 
 function createColumns(
-  element: CheerioAPI,
-  table: Element,
+  cheeiro: CheerioAPI,
+  element: Element,
   url: string,
   nameNumber: number,
   descriptionNumber: number,
@@ -85,11 +85,11 @@ function createColumns(
 ): ColumnOthers[] {
   const columns = [] as ColumnOthers[];
 
-  const AllRows = element(table).find("tr").not("tr:first");
+  const AllRows = cheeiro(element).find("tr").not("tr:first");
   const rows = type === "R" ? AllRows.not(":first") : AllRows;
 
-  rows.each((_, table) => {
-    const column = element(table).find("td");
+  rows.each((_, element) => {
+    const column = cheeiro(element).find("td");
 
     const group = column.eq(nameNumber).text().trim();
     const urlGroup = column.eq(nameNumber).find("a").attr("href") || false;
