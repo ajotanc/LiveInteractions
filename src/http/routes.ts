@@ -29,8 +29,8 @@ export const routes: FastifyPluginAsync = async (server) => {
       instance.get("/magistrike/meta", meta);
 
       // E-SOCIAL
-      instance.get("/esocial/:url", dictionary);
-      instance.get("/esocial/by/:url/:id?", dictionaryById);
+      instance.get("/esocial", dictionary);
+      instance.get("/esocial/:id", dictionaryById);
       done();
     },
   );

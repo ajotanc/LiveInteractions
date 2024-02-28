@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { CheerioAPI, Element } from "cheerio";
 import { z } from "zod";
 import { extractData } from "../../../helpers";
+import { env } from "../../../env";
 import {
   ColumnOthers,
   Parameters,
@@ -18,12 +19,9 @@ export async function dictionary(
   request: FastifyRequest<{ Params: { url: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const othersParamsSchema = z.object({
-    url: z.string(),
-  });
+  const url = await getUrl();
 
-  const { url } = othersParamsSchema.parse(request.params);
-  const $ = await extractData(decodeURIComponent(url));
+  const $ = await extractData(url);
 
   const menu = $(".navbar-start .has-dropdown");
   const version = $(".container h1.title").text().trim();
@@ -34,6 +32,7 @@ export async function dictionary(
   const data: Parameters = {
     version,
     comments,
+    url,
     menu: [],
   } as Parameters;
 
@@ -60,12 +59,13 @@ export async function dictionaryById(
   reply: FastifyReply,
 ): Promise<void> {
   const othersParamsSchema = z.object({
-    url: z.string(),
     id: z.string().optional(),
   });
 
-  const { url, id } = othersParamsSchema.parse(request.params);
-  const $ = await extractData(decodeURIComponent(url));
+  const url = await getUrl();
+
+  const { id } = othersParamsSchema.parse(request.params);
+  const $ = await extractData(url);
 
   const elements = $("h3.title, h4.subtitle, table.resumo, table.completo");
 
@@ -174,4 +174,27 @@ function createColumns(
   });
 
   return columns;
+}
+
+async function getUrl(): Promise<string> {
+  const url = env.URL_DOC_ESOCIAL;
+
+  const $ = await extractData(url);
+
+  const elements = $("#content .outstanding-link");
+  const date = new Date();
+
+  const links = [];
+
+  elements.each((_, element) => {
+    const link = $(element).attr("href").trim();
+    links.push(link);
+  });
+
+  const response = links.find(
+    (link) =>
+      link.includes(date.getFullYear().toString()) && link.endsWith(".html"),
+  );
+
+  return response;
 }
