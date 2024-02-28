@@ -2,7 +2,11 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { CheerioAPI, Element } from "cheerio";
 import { z } from "zod";
 import { extractData } from "../../../helpers";
-import { ColumnOthers, ParametersOthers } from "../../../interfaces";
+import {
+  ColumnOthers,
+  Parameters,
+  ParametersOthers,
+} from "../../../interfaces";
 
 /**
  * Get response from the given URL.
@@ -10,7 +14,48 @@ import { ColumnOthers, ParametersOthers } from "../../../interfaces";
  * @param reply - The reply object.
  * @returns Promise<Array<unknown>> - The response data.
  */
-export async function getResponse(
+export async function dictionary(
+  request: FastifyRequest<{ Params: { url: string } }>,
+  reply: FastifyReply,
+): Promise<void> {
+  const othersParamsSchema = z.object({
+    url: z.string(),
+  });
+
+  const { url } = othersParamsSchema.parse(request.params);
+  const $ = await extractData(decodeURIComponent(url));
+
+  const menu = $(".navbar-start .has-dropdown");
+  const version = $(".container h1.title").text().trim();
+  const comments = $(".is-hidden-print h2.title:last")
+    .html()
+    .replace(/Observaç[ãõ][oe]s?: /g, "");
+
+  const data: Parameters = {
+    version,
+    comments,
+    menu: [],
+  } as Parameters;
+
+  menu.each((_, item) => {
+    const group = $(item).find(".navbar-link").text().trim();
+    const options = $(item).find(".navbar-dropdown .navbar-item");
+
+    const menuItem = { group, options: [] };
+
+    options.each((_, option) => {
+      const text = $(option).text().trim();
+      const [value] = text.split(" - ");
+      menuItem.options.push({ text, value });
+    });
+
+    data.menu.push(menuItem);
+  });
+
+  reply.send(data);
+}
+
+export async function dictionaryById(
   request: FastifyRequest<{ Params: { url: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
@@ -19,18 +64,18 @@ export async function getResponse(
     id: z.string().optional(),
   });
 
-  const { id, url } = othersParamsSchema.parse(request.params);
+  const { url, id } = othersParamsSchema.parse(request.params);
   const $ = await extractData(decodeURIComponent(url));
 
-  const data: Array<ParametersOthers> = [];
   const elements = $("h3.title, h4.subtitle, table.resumo, table.completo");
+
+  const data: Array<ParametersOthers> = [];
 
   let parameters = {
     events: {
       summary: [],
       records: [],
     },
-    url,
   } as ParametersOthers;
 
   elements.each((index, element) => {
@@ -67,12 +112,13 @@ export async function getResponse(
           summary: [],
           records: [],
         },
-        url,
       };
     }
   });
 
-  const response = id ? data.find((element) => element.id === id) : data;
+  const response = id
+    ? data.find((element) => element.id === id.toUpperCase())
+    : data;
   reply.send(response);
 }
 

@@ -40,10 +40,23 @@ export type ColumnOthers = {
 export type ParametersOthers = {
   id?: string;
   name?: string;
-  url: string;
   description?: string;
   events: {
     summary: Array<ColumnOthers>;
     records: Array<ColumnOthers>;
   };
+};
+
+export type Parameters = {
+  version: string;
+  comments: string;
+  url: string;
+  menu: Array<{
+    group: string;
+    options: Array<{
+      text: string;
+      value: string;
+    }>;
+  }>;
+  records: Array<ParametersOthers>;
 };
