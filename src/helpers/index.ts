@@ -27,3 +27,7 @@ export function financingEndDate() {
   const days = dateFormatted.diff(currentDate, "days") + 1;
   return days;
 }
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

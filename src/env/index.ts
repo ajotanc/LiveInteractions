@@ -8,6 +8,8 @@ const envSchema = z.object({
   FIREBASE_PRIVATY_KEY: z.string().transform((value) => JSON.parse(value)),
   FINANCING_END_DATE_MAGISTRIKE: z.string(),
   URL_DOC_ESOCIAL: z.string(),
+  SUPABASE_URL: z.string(),
+  SUPABASE_KEY: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

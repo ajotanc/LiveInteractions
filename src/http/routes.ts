@@ -1,4 +1,4 @@
-import {
+import type {
   FastifyInstance,
   FastifyPluginAsync,
   FastifyServerOptions,
@@ -7,6 +7,7 @@ import {
 import { ranked } from "./controllers/leagueoflegends/ranked";
 import { random, findByName } from "./controllers/leagueoflegends/champion";
 import { game } from "./controllers/games/jokenpo";
+import { mostPlayed } from "./controllers/games/steam";
 import { weapons } from "./controllers/warzone/weapons";
 import { meta } from "./controllers/magistrike/meta";
 import { dictionary, dictionaryById } from "./controllers/esocial/dictionary";
@@ -31,6 +32,8 @@ export const routes: FastifyPluginAsync = async (server) => {
       // E-SOCIAL
       instance.get("/esocial", dictionary);
       instance.get("/esocial/:id", dictionaryById);
+
+      instance.get("/games/most-played", mostPlayed);
       done();
     },
   );
