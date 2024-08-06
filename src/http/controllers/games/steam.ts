@@ -1,5 +1,4 @@
-import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 import cheerio from "cheerio";
 import { createClient } from "@supabase/supabase-js";
 
@@ -29,23 +28,7 @@ interface Games {
 }
 
 export default async function getContent(url: string) {
-	const options = process.env.AWS_REGION
-		? {
-				args: chrome.args,
-				executablePath: await chrome.executablePath,
-				headless: chrome.headless,
-			}
-		: {
-				args: [],
-				executablePath:
-					process.platform === "win32"
-						? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-						: process.platform === "linux"
-							? "/usr/bin/google-chrome"
-							: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-			};
-
-	const browser = await puppeteer.launch(options);
+	const browser = await puppeteer.launch();
 	const page = await browser.newPage();
 
 	await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
