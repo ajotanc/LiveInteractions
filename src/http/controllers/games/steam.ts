@@ -3,7 +3,7 @@ import puppeteer from "puppeteer-extra";
 import cheerio from "cheerio";
 import { createClient } from "@supabase/supabase-js";
 
-import { delay, extractData } from "../../../helpers";
+import { delay } from "../../../helpers";
 import { env } from "../../../env";
 
 import type { FastifyRequest } from "fastify";
@@ -50,7 +50,17 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
     return JSON.parse(fileContent);
   }
 
-  const $ = await extractData("https://store.steampowered.com/charts/mostplayed/");
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  await page.goto("https://store.steampowered.com/charts/mostplayed/", {
+    waitUntil: "networkidle2",
+    timeout: 0,
+  });
+
+  const content = await page.content();
+  const $ = cheerio.load(content);
+
   const games = [];
 
   const rows = $('[data-featuretarget="react-root"]')
@@ -75,6 +85,8 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
       summary,
     });
   }
+
+  await browser.close();
 
   // Converte os dados para um Blob
   const jsonData = JSON.stringify(games, null, 2);
