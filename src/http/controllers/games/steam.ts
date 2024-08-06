@@ -1,5 +1,6 @@
 import cheerio from "cheerio";
 import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import locateChrome from 'locate-chrome';
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -33,10 +34,11 @@ export default async function getContent(url: string) {
   const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
   
 	const browser = await puppeteer.launch({
-    executablePath,
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: await chromium.executablePath() || executablePath,
+    headless: chromium.headless,
+    args: chromium.args,
   });
+  
 	const page = await browser.newPage();
 
 	await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
