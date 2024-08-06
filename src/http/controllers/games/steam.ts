@@ -48,7 +48,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 
 	const { top } = mostPlayedQuerySchema.parse(request.query);
 
-	const today = new Date();
+  const today = new Date();
 	const dateStr = today.toISOString().split("T")[0];
 	const filename = `${dateStr}-${top}.json`;
 
