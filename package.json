@@ -38,5 +38,8 @@
     "tsup": "7.2.0",
     "tsx": "3.13.0",
     "typescript": "5.2.2"
+  },
+  "pkg": {
+    "assets": "node_modules/puppeteer-extra-plugin-stealth/**/*.*"
   }
 }
