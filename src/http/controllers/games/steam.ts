@@ -1,18 +1,14 @@
 import cheerio from "cheerio";
-import puppeteer from 'puppeteer';
-import chromium from '@sparticuz/chromium';
-import locateChrome from 'locate-chrome';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { FastifyRequest } from "fastify";
 
-import { delay } from "../../../helpers";
 import { env } from "../../../env";
-import axios from "axios";
-import playwright from "playwright";
 
-// puppeteer.use(StealthPlugin());
+puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
 
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
