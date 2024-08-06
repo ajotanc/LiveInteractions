@@ -43,14 +43,14 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   const dateStr = today.toISOString().split("T")[0];
   const filename = `${dateStr}-${top}.json`;
 
-  // const { data: fileExists } = await supabase.storage
-  //   .from("most-played")
-  //   .download(filename);
+  const { data: fileExists } = await supabase.storage
+    .from("most-played")
+    .download(filename);
 
-  // if (fileExists) {
-  //   const fileContent = await fileExists.text();
-  //   return JSON.parse(fileContent);
-  // }
+  if (fileExists) {
+    const fileContent = await fileExists.text();
+    return JSON.parse(fileContent);
+  }
 
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     browser = await chromium.puppeteer.launch({
@@ -70,8 +70,6 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
     waitUntil: "networkidle2",
     timeout: 0,
   });
-
-  return;
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -103,20 +101,18 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 
   await browser.close();
 
-  // Converte os dados para um Blob
-  // const jsonData = JSON.stringify(games, null, 2);
-  // const buffer = Buffer.from(jsonData);
+  const jsonData = JSON.stringify(games, null, 2);
+  const buffer = Buffer.from(jsonData);
 
-  // // Faz upload do Blob para o Supabase Storage
-  // const { error: uploadError } = await supabase.storage
-  //   .from("most-played")
-  //   .upload(filename, buffer, {
-  //     contentType: "application/json",
-  //   });
+  const { error: uploadError } = await supabase.storage
+    .from("most-played")
+    .upload(filename, buffer, {
+      contentType: "application/json",
+    });
 
-  // if (uploadError) {
-  //   throw uploadError;
-  // }
+  if (uploadError) {
+    throw uploadError;
+  }
 
   return games;
 }

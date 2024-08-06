@@ -16,7 +16,6 @@
     "fastify-plugin": "4.5.1",
     "moment-timezone": "^0.5.43",
     "puppeteer": "^22.15.0",
-    "puppeteer-core": "^22.15.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "ts-node": "^10.9.1",
@@ -40,8 +39,5 @@
     "tsup": "7.2.0",
     "tsx": "3.13.0",
     "typescript": "5.2.2"
-  },
-  "pkg": {
-    "assets": "node_modules/puppeteer-extra-plugin-stealth/**/*.*"
   }
 }
