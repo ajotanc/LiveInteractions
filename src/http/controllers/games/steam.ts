@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-// import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import chromium  from "chrome-aws-lambda";
 import cheerio from "cheerio";
 import { createClient } from "@supabase/supabase-js";
 
@@ -28,6 +28,8 @@ interface Games {
   summary: Summary;
 }
 
+let browser = null;
+
 export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   const choices = ["10", "25", "50", "75", "100"] as [string, ...string[]];
 
@@ -41,22 +43,35 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   const dateStr = today.toISOString().split("T")[0];
   const filename = `${dateStr}-${top}.json`;
 
-  const { data: fileExists } = await supabase.storage
-    .from("most-played")
-    .download(filename);
+  // const { data: fileExists } = await supabase.storage
+  //   .from("most-played")
+  //   .download(filename);
 
-  if (fileExists) {
-    const fileContent = await fileExists.text();
-    return JSON.parse(fileContent);
+  // if (fileExists) {
+  //   const fileContent = await fileExists.text();
+  //   return JSON.parse(fileContent);
+  // }
+
+  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    browser = await chromium.puppeteer.launch({
+      args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+         defaultViewport: chromium.defaultViewport,
+         executablePath: await chromium.executablePath,
+         headless: true,
+         ignoreHTTPSErrors: true,
+     });
+  } else {
+    browser = await puppeteer.launch();
   }
 
-  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.goto("https://store.steampowered.com/charts/mostplayed/", {
     waitUntil: "networkidle2",
     timeout: 0,
   });
+
+  return;
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -89,25 +104,36 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   await browser.close();
 
   // Converte os dados para um Blob
-  const jsonData = JSON.stringify(games, null, 2);
-  const buffer = Buffer.from(jsonData);
+  // const jsonData = JSON.stringify(games, null, 2);
+  // const buffer = Buffer.from(jsonData);
 
-  // Faz upload do Blob para o Supabase Storage
-  const { error: uploadError } = await supabase.storage
-    .from("most-played")
-    .upload(filename, buffer, {
-      contentType: "application/json",
-    });
+  // // Faz upload do Blob para o Supabase Storage
+  // const { error: uploadError } = await supabase.storage
+  //   .from("most-played")
+  //   .upload(filename, buffer, {
+  //     contentType: "application/json",
+  //   });
 
-  if (uploadError) {
-    throw uploadError;
-  }
+  // if (uploadError) {
+  //   throw uploadError;
+  // }
 
   return games;
 }
 
 export async function getInfo(url: string): Promise<Summary> {
-  const browser = await puppeteer.launch();
+  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    browser = await chromium.puppeteer.launch({
+      args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+         defaultViewport: chromium.defaultViewport,
+         executablePath: await chromium.executablePath,
+         headless: true,
+         ignoreHTTPSErrors: true,
+     });
+  } else {
+    browser = await puppeteer.launch();
+  }
+
   const page = await browser.newPage();
 
   await page.goto(url, {
