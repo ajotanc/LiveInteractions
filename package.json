@@ -23,11 +23,15 @@
     "twisted": "1.53.2",
     "zod": "3.22.3"
   },
+  "engines": {
+    "node": "18.18.0"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "vercel": "vercel dev",
     "build": "tsc -p tsconfig.json",
-    "build-dev": "tsup src --out-dir build"
+    "build-dev": "tsup src --out-dir build",
+    "start": "node build/server.js"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "2.1.0",
