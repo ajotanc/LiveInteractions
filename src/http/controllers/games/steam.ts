@@ -1,6 +1,5 @@
 import cheerio from "cheerio";
 import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 import locateChrome from 'locate-chrome';
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -34,10 +33,9 @@ export default async function getContent(url: string) {
   const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
   
 	const browser = await puppeteer.launch({
-    args: chromium.args,
     executablePath,
-    headless: chromium.headless,
-    ignoreDefaultArgs: ['--disable-extensions'],
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 	const page = await browser.newPage();
 
@@ -50,7 +48,7 @@ export default async function getContent(url: string) {
 }
 
 export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
-	const choices = ["1", "5", "10", "25", "50", "75", "100"] as [string, ...string[]];
+	const choices = ["1", "2", "5", "10", "25", "50", "75", "100"] as [string, ...string[]];
 
 	const mostPlayedQuerySchema = z.object({
 		top: z.enum(choices).default("10"),
