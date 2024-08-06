@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import Fastify, { FastifyReply, FastifyRequest } from "fastify";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { instance } from "../src/app";
 
 dotenv.config();

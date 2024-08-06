@@ -1,5 +1,5 @@
 import cheerio from "cheerio";
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import locateChrome from 'locate-chrome';
 import { createClient } from "@supabase/supabase-js";
@@ -9,6 +9,8 @@ import type { FastifyRequest } from "fastify";
 
 import { delay } from "../../../helpers";
 import { env } from "../../../env";
+import axios from "axios";
+import playwright from "playwright";
 
 // puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
@@ -31,17 +33,22 @@ interface Games {
 
 export default async function getContent(url: string) {
 
-  const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
-  
-	const browser = await puppeteer.launch({
-    executablePath: await chromium.executablePath() || executablePath,
-    headless: chromium.headless,
-    args: chromium.args,
-  });
-  
+  const browser = await puppeteer.launch({
+    headless: false // setting this to true will not run the UI
+});
+
+    // const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
+  // const chromiumPack = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
+
+	// const browser = await puppeteer.launch({
+  //   executablePath: await chromium.executablePath(chromiumPack),
+  //   headless: chromium.headless,
+  //   args: chromium.args,
+  // });
+
 	const page = await browser.newPage();
 
-	await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+	await page.goto(url, { waitUntil: "networkidle0", timeout: 0 });
 
 	const content = await page.content();
 	await browser.close();
@@ -81,7 +88,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 	const rows = $('[data-featuretarget="react-root"]')
 		.find("table tbody")
 		.find("tr")
-		.filter((index) => index <= Number.parseInt(top));
+		.filter((index) => index < Number.parseInt(top));
 
 	for (const element of rows.toArray()) {
 		const label = $(element).find("td:eq(2) a > div").text().trim();
@@ -89,8 +96,6 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 		const value = Number.parseInt(
 			$(element).find("td:eq(5)").text().trim().replace(/\D/g, ""),
 		);
-
-		delay(10);
 
 		const summary = await getInfo(url);
 		games.push({
