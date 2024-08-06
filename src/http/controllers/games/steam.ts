@@ -30,7 +30,7 @@ interface Games {
 export default async function getContent(url: string) {
 
   const browser = await puppeteer.launch({
-    headless: false // setting this to true will not run the UI
+    headless: true
 });
 
     // const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
