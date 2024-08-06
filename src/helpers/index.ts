@@ -15,6 +15,7 @@ export function capitalizeFirstLetter(word: string) {
 export async function extractData(url: string) {
   const response = await fetch(url);
   const data = await response.text();
+  console.log(data);
   const content = cheerio.load(data);
 
   return content;

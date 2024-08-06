@@ -1,15 +1,15 @@
 import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+// import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import cheerio from "cheerio";
 import { createClient } from "@supabase/supabase-js";
 
-import { delay } from "../../../helpers";
+import { delay, extractData } from "../../../helpers";
 import { env } from "../../../env";
 
 import type { FastifyRequest } from "fastify";
 import { z } from "zod";
 
-puppeteer.use(StealthPlugin());
+// puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
 
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
@@ -50,17 +50,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
     return JSON.parse(fileContent);
   }
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto("https://store.steampowered.com/charts/mostplayed/", {
-    waitUntil: "networkidle2",
-    timeout: 0,
-  });
-
-  const content = await page.content();
-  const $ = cheerio.load(content);
-
+  const $ = await extractData("https://store.steampowered.com/charts/mostplayed/");
   const games = [];
 
   const rows = $('[data-featuretarget="react-root"]')
@@ -85,8 +75,6 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
       summary,
     });
   }
-
-  await browser.close();
 
   // Converte os dados para um Blob
   const jsonData = JSON.stringify(games, null, 2);
