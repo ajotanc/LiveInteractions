@@ -1,12 +1,14 @@
-import puppeteer from "puppeteer";
 import cheerio from "cheerio";
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+import locateChrome from 'locate-chrome';
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
+
+import type { FastifyRequest } from "fastify";
 
 import { delay } from "../../../helpers";
 import { env } from "../../../env";
-
-import type { FastifyRequest } from "fastify";
-import { z } from "zod";
 
 // puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
@@ -28,7 +30,15 @@ interface Games {
 }
 
 export default async function getContent(url: string) {
-	const browser = await puppeteer.launch();
+
+  const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
+  
+	const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath,
+    headless: chromium.headless,
+    ignoreDefaultArgs: ['--disable-extensions'],
+  });
 	const page = await browser.newPage();
 
 	await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
@@ -40,7 +50,7 @@ export default async function getContent(url: string) {
 }
 
 export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
-	const choices = ["10", "25", "50", "75", "100"] as [string, ...string[]];
+	const choices = ["1", "5", "10", "25", "50", "75", "100"] as [string, ...string[]];
 
 	const mostPlayedQuerySchema = z.object({
 		top: z.enum(choices).default("10"),
