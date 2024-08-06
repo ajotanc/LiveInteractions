@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
 import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+// import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
@@ -8,7 +8,7 @@ import type { FastifyRequest } from "fastify";
 
 import { env } from "../../../env";
 
-puppeteer.use(StealthPlugin());
+// puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
 
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
@@ -30,9 +30,9 @@ interface Games {
 export default async function getContent(url: string) {
 
   const browser = await puppeteer.launch({
-    headless: true
-});
-
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    headless: true,
+  });
     // const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
   // const chromiumPack = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 
