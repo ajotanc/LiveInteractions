@@ -67,7 +67,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
       $(element).find("td:eq(5)").text().trim().replace(/\D/g, ""),
     );
 
-    const summary = await getInfo(url);
+    const summary = await getInfo(label, url);
     games.push({
       label,
       value,
@@ -92,7 +92,17 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   return games;
 }
 
-export async function getInfo(url: string): Promise<Summary> {
+export async function getInfo(label: string, url: string): Promise<Summary> {
+  const { data } = await supabase
+    .from("games")
+    .select("*")
+    .eq("label", label)
+    .single();
+
+  if (data) {
+    return data;
+  }
+
   const $ = await getContent(url);
 
   const infos = $("#game_highlights").find(".glance_ctn");
@@ -117,10 +127,19 @@ export async function getInfo(url: string): Promise<Summary> {
     }
   });
 
-  return {
+  const gameInfo = {
+    label,
     description,
     review,
     top,
     tags,
   };
+
+  const { error: insertError } = await supabase.from("games").insert([gameInfo]);
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  return gameInfo;
 }
