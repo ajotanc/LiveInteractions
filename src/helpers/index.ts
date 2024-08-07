@@ -1,5 +1,9 @@
 import moment from "moment-timezone";
 import cheerio from "cheerio";
+import puppeteer, { type Browser }  from "puppeteer-core";
+import locateChrome from "locate-chrome";
+import chrome from "@sparticuz/chromium";
+
 import { env } from "../env";
 
 moment.locale("pt-br");
@@ -31,4 +35,40 @@ export function financingEndDate() {
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export default async function getContent(url: string) {
+  try {
+    let browser: Browser
+
+    if (env.NODE_ENV === "production") {
+      browser = await puppeteer.launch({
+        args: [...chrome.args, "no-sandbox", "disable-setuid-sandbox"],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath(),
+        headless: "new",
+        ignoreHTTPSErrors: true
+      })
+    } else {
+      const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
+      
+      browser = await puppeteer.launch({
+        headless: "new",
+        executablePath,
+        args: ["no-sandbox", "disable-setuid-sandbox"],
+      })
+    }
+    
+    const page = await browser.newPage();
+  
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+  
+    const content = await page.content();
+    await browser.close();
+  
+    return cheerio.load(content);
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
 }

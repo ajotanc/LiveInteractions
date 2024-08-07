@@ -1,14 +1,11 @@
-import cheerio from "cheerio";
-import puppeteer, { type Browser }  from "puppeteer-core";
-import chrome from "@sparticuz/chromium";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { FastifyRequest } from "fastify";
 
 import { env } from "../../../env";
+import getContent from "../../../helpers";
 
-// puppeteer.use(StealthPlugin());
 process.setMaxListeners(0);
 
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
@@ -25,46 +22,6 @@ interface Games {
   value: number;
   url: string;
   summary: Summary;
-}
-
-export default async function getContent(url: string) {
-  try {
-    const isProd = process.env.NODE_ENV === 'production'
-
-    let browser: Browser
-  
-    if (isProd) {
-      browser = await puppeteer.launch({
-        args: chrome.args,
-        defaultViewport: chrome.defaultViewport,
-        executablePath: await chrome.executablePath(),
-        headless: 'new',
-        ignoreHTTPSErrors: true
-      })
-    } else {
-      browser = await puppeteer.launch({
-        headless: 'new',
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      })
-    }
-
-    // const browser = await puppeteer.launch({
-    //   args: ["--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
-    //   headless: true
-    // });
-
-    const page = await browser.newPage();
-  
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
-  
-    const content = await page.content();
-    await browser.close();
-  
-    return content;
-  } catch (error) {
-    console.log(error)
-    throw error;
-  }
 }
 
 export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
@@ -92,10 +49,9 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
     return JSON.parse(fileContent);
   }
 
-  const content = await getContent(
+  const $ = await getContent(
     "https://store.steampowered.com/charts/mostplayed/",
   );
-  const $ = cheerio.load(content);
 
   const games = [];
 
@@ -137,8 +93,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 }
 
 export async function getInfo(url: string): Promise<Summary> {
-  const content = await getContent(url);
-  const $ = cheerio.load(content);
+  const $ = await getContent(url);
 
   const infos = $("#game_highlights").find(".glance_ctn");
   const description = infos.find(".game_description_snippet").text().trim();
