@@ -45,14 +45,14 @@ export default async function getContent(url: string) {
         args: chrome.args,
         defaultViewport: chrome.defaultViewport,
         executablePath: await chrome.executablePath(),
-        headless: true,
+        headless: "new",
         ignoreHTTPSErrors: true
       })
     } else {
       const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
       
       browser = await puppeteer.launch({
-        headless: true,
+        headless: "new",
         executablePath,
         // args: ["no-sandbox", "disable-setuid-sandbox"],
       })
