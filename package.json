@@ -31,7 +31,8 @@
     "build": "tsc -p tsconfig.json",
     "build-dev": "tsup src --out-dir build",
     "start": "node build/server.js",
-    "postinstall": "puppeteer install"
+    "postinstall": "npx puppeteer browsers install chrome",
+    "gcp-build": "node node_modules/puppeteer/install.mjs"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "2.1.0",
