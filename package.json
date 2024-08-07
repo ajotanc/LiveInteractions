@@ -31,7 +31,7 @@
     "build": "tsc -p tsconfig.json",
     "build-dev": "tsup src --out-dir build",
     "start": "node build/server.js",
-    "postinstall": "npx puppeteer browsers install chrome",
+    "postinstall": "npx puppeteer browsers install",
     "gcp-build": "node node_modules/puppeteer/install.mjs"
   },
   "devDependencies": {
