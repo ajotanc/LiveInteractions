@@ -1,6 +1,6 @@
 import moment from "moment-timezone";
 import cheerio from "cheerio";
-import puppeteer, { type Browser }  from "puppeteer-core";
+import puppeteer, { type Browser } from "puppeteer-core";
 import locateChrome from "locate-chrome";
 import chrome from "@sparticuz/chromium";
 
@@ -36,38 +36,75 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export default async function getContent(url: string) {
+export async function getContent(url: string) {
   try {
-    let browser: Browser
+    let browser: Browser;
 
     if (env.NODE_ENV === "production") {
       browser = await puppeteer.launch({
-        args: chrome.args,
+        args: [...chrome.args, "--accept-lang=pt-BR", "--lang=pt-BR"],
         defaultViewport: chrome.defaultViewport,
         executablePath: await chrome.executablePath(),
         headless: "new",
-        ignoreHTTPSErrors: true
-      })
+        ignoreHTTPSErrors: true,
+      });
     } else {
-      const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
-      
+      const executablePath = (await new Promise((resolve) =>
+        locateChrome((arg) => resolve(arg)),
+      )) as string;
+
       browser = await puppeteer.launch({
         headless: "new",
         executablePath,
-        // args: ["no-sandbox", "disable-setuid-sandbox"],
-      })
+      });
     }
-    
+
     const page = await browser.newPage();
-  
+    
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'pt-BR'
+    });
+
     await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
-  
+
     const content = await page.content();
     await browser.close();
-  
+
     return cheerio.load(content);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw error;
   }
+}
+
+// Função para converter a data
+export function convertDateToISO(dateStr: string): string | null {
+  const dateRegex = /^\d{2}\/[a-z]{3}\.\/\d{4}$/i;
+
+  if (!dateStr || !dateRegex.test(dateStr)) {
+    return null;
+  }
+
+  const monthMap = {
+    "jan.": "01",
+    "fev.": "02",
+    "mar.": "03",
+    "abr.": "04",
+    "mai.": "05",
+    "jun.": "06",
+    "jul.": "07",
+    "ago.": "08",
+    "set.": "09",
+    "out.": "10",
+    "nov.": "11",
+    "dez.": "12",
+  };
+
+  const [day, month, year] = dateStr.split("/");
+  const monthNumber = monthMap[month.toLowerCase()];
+
+  const dateString = `${year}-${monthNumber}-${day.padStart(2, "0")}`;
+  const date = moment(dateString, "YYYY-MM-DD");
+
+  return date.format("YYYY-MM-DD");
 }

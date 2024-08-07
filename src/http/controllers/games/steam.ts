@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { FastifyRequest } from "fastify";
 
 import { env } from "../../../env";
-import getContent from "../../../helpers";
+import { getContent, convertDateToISO } from "../../../helpers";
 
 process.setMaxListeners(0);
 
@@ -12,9 +12,11 @@ const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
 interface Summary {
   description: string;
-  review: string;
-  top: number;
   tags: string[];
+  developers: string[];
+  distributors: string[];
+  releaseDate: string;
+  image: string;
 }
 
 interface Games {
@@ -92,11 +94,11 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   return games;
 }
 
-export async function getInfo(label: string, url: string): Promise<Summary> {
+export async function getInfo(name: string, url: string): Promise<Summary> {
   const { data } = await supabase
     .from("games")
-    .select("*")
-    .eq("label", label)
+    .select("description, tags, developers, distributors, releaseDate, image")
+    .eq("name", name)
     .single();
 
   if (data) {
@@ -108,12 +110,33 @@ export async function getInfo(label: string, url: string): Promise<Summary> {
   const infos = $("#game_highlights").find(".glance_ctn");
   const description = infos.find(".game_description_snippet").text().trim();
 
-  const summary = $("#userReviews").find(".user_reviews_summary_row").last();
+  const date = infos.find(".release_date").find(".date").text().trim();
+  const releaseDate = convertDateToISO(date);
 
-  const review = summary.find(".game_review_summary").text().trim();
-  const top = Number.parseInt(
-    summary.find(".responsive_hidden").text().replace(/\D/g, ""),
-  );
+  const image = infos.find("#gameHeaderImageCtn").find("img").attr("src");
+
+  const allDevelopers = infos.find("#developers_list").find("a");
+  const developers = [];
+
+  allDevelopers.each((_, element) => {
+    const value = $(element).text().trim();
+    developers.push(value);
+  });
+
+  const distributors = [];
+  const allDistributors = infos.find(".dev_row").last().find("a");
+
+  allDistributors.each((_, element) => {
+    const value = $(element).text().trim();
+    distributors.push(value);
+  });
+
+  // const summary = $("#userReviews").find(".user_reviews_summary_row").last();
+
+  // const review = summary.find(".game_review_summary").text().trim();
+  // const top = Number.parseInt(
+  //   summary.find(".responsive_hidden").text().replace(/\D/g, ""),
+  // );
 
   const allTags = infos.find("#glanceCtnResponsiveRight").find(".app_tag");
 
@@ -122,20 +145,24 @@ export async function getInfo(label: string, url: string): Promise<Summary> {
   allTags.each((_, element) => {
     const value = $(element).text().trim();
 
-    if ($(element).css("display") !== "none" && value !== "+") {
+    if (value !== "+") {
       tags.push(value);
     }
   });
 
   const gameInfo = {
-    label,
+    name,
     description,
-    review,
-    top,
     tags,
+    developers,
+    distributors,
+    image,
+    releaseDate,
   };
 
-  const { error: insertError } = await supabase.from("games").insert([gameInfo]);
+  const { error: insertError } = await supabase
+    .from("games")
+    .insert([gameInfo]);
 
   if (insertError) {
     throw insertError;
