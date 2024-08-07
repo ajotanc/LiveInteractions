@@ -31,8 +31,7 @@ export default async function getContent(url: string) {
   try {
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
-      headless: true,
-      ignoreHTTPSErrors: true,
+      headless: "new"
     });
 
     const page = await browser.newPage();
