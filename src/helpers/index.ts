@@ -36,7 +36,7 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function getContent(url: string) {
+export async function getContent(url: string, steam = false) {
   try {
     let browser: Browser;
 
@@ -60,12 +60,33 @@ export async function getContent(url: string) {
     }
 
     const page = await browser.newPage();
-    
+
     await page.setExtraHTTPHeaders({
-      'Accept-Language': 'pt-BR'
+      "Accept-Language": "pt-BR",
     });
 
     await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+
+    if (steam) {
+      const hasAgeCheck = await page.evaluate(() => {
+        console.log(document.querySelector("#day"));
+        return (
+          !!document.querySelector("#ageDay") &&
+          !!document.querySelector("#ageMonth") &&
+          !!document.querySelector("#ageYear") &&
+          !!document.querySelector("#view_product_page_btn")
+        );
+      });
+
+      if (hasAgeCheck) {
+        await page.type("#ageDay", "01");
+        await page.type("#ageMonth", "08");
+        await page.type("#ageYear", "1991");
+
+        await page.click("#view_product_page_btn");
+        await page.waitForNavigation();
+      }
+    }
 
     const content = await page.content();
     await browser.close();

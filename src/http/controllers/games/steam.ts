@@ -52,7 +52,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   }
 
   const $ = await getContent(
-    "https://store.steampowered.com/charts/mostplayed/",
+    "https://store.steampowered.com/charts/mostplayed/"
   );
 
   const games = [];
@@ -70,6 +70,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
     );
 
     const summary = await getInfo(label, url);
+
     games.push({
       label,
       value,
@@ -105,7 +106,7 @@ export async function getInfo(name: string, url: string): Promise<Summary> {
     return data;
   }
 
-  const $ = await getContent(url);
+  const $ = await getContent(url, true);
 
   const infos = $("#game_highlights").find(".glance_ctn");
   const description = infos.find(".game_description_snippet").text().trim();
