@@ -24,7 +24,7 @@
     "zod": "3.22.3"
   },
   "engines": {
-    "node": "18.x"
+    "node": "16.x"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
