@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
-import puppeteer, { type PuppeteerNode }  from "puppeteer";
-import puppeteerCore, { type PuppeteerNode as PuppeteerNodeCore } from "puppeteer-core";
+import puppeteer  from "puppeteer";
+import puppeteerCore from "puppeteer-core";
 // import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import chromium from "chrome-aws-lambda";
 import { createClient } from "@supabase/supabase-js";
@@ -31,7 +31,7 @@ interface Games {
 
 export default async function getContent(url: string) {
   let options = {};
-  let puppeteerBrowser: PuppeteerNode | PuppeteerNodeCore;
+  let puppeteerBrowser;
 
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     puppeteerBrowser = puppeteerCore;
