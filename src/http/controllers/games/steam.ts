@@ -37,7 +37,7 @@ export default async function getContent(url: string) {
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     puppeteerBrowser = puppeteerCore;
     options = {
-      args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+      args: [...chromium.args, "--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
       headless: true,
