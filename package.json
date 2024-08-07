@@ -14,7 +14,7 @@
     "fastify-firebase": "^1.0.3",
     "fastify-plugin": "4.5.1",
     "moment-timezone": "^0.5.45",
-    "puppeteer": "^22.15.0",
+    "puppeteer": "^23.0.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "ts-node": "^10.9.1",
