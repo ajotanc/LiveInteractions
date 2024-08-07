@@ -19,7 +19,6 @@ export function capitalizeFirstLetter(word: string) {
 export async function extractData(url: string) {
   const response = await fetch(url);
   const data = await response.text();
-  console.log(data);
   const content = cheerio.load(data);
 
   return content;
@@ -43,19 +42,19 @@ export default async function getContent(url: string) {
 
     if (env.NODE_ENV === "production") {
       browser = await puppeteer.launch({
-        args: [...chrome.args, "no-sandbox", "disable-setuid-sandbox"],
+        args: chrome.args,
         defaultViewport: chrome.defaultViewport,
         executablePath: await chrome.executablePath(),
-        headless: "new",
+        headless: true,
         ignoreHTTPSErrors: true
       })
     } else {
       const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg))) as string;
       
       browser = await puppeteer.launch({
-        headless: "new",
+        headless: true,
         executablePath,
-        args: ["no-sandbox", "disable-setuid-sandbox"],
+        // args: ["no-sandbox", "disable-setuid-sandbox"],
       })
     }
     
