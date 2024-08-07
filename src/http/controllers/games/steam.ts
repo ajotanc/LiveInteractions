@@ -31,7 +31,8 @@ interface Games {
 
 export default async function getContent(url: string) {
   let options = {};
-  let puppeteerBrowser;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  let puppeteerBrowser: any;
 
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     puppeteerBrowser = puppeteerCore;
@@ -44,6 +45,10 @@ export default async function getContent(url: string) {
     };
   } else {
     puppeteerBrowser = puppeteer;
+    options = {
+      headless: true,
+      ignoreHTTPSErrors: true,
+    }
   }
 
   const browser = await puppeteerBrowser.launch(options);
