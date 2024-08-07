@@ -1,8 +1,6 @@
 import cheerio from "cheerio";
 import puppeteer  from "puppeteer";
-import puppeteerCore from "puppeteer-core";
 // import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import chromium from "chrome-aws-lambda";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
@@ -30,29 +28,13 @@ interface Games {
 }
 
 export default async function getContent(url: string) {
-  let options = {};
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  let puppeteerBrowser: any;
-
-  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    puppeteerBrowser = puppeteerCore;
-    options = {
-      args: [...chromium.args, "--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: true,
-      ignoreHTTPSErrors: true,
-    };
-  } else {
-    puppeteerBrowser = puppeteer;
-    options = {
-      headless: true,
-      ignoreHTTPSErrors: true,
-    }
-  }
-
   try {
-    const browser = await puppeteerBrowser.launch(options);
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
+      headless: true,
+      ignoreHTTPSErrors: true,
+    });
+
     const page = await browser.newPage();
   
     await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });

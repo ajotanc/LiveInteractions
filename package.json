@@ -8,15 +8,12 @@
     "@fastify/multipart": "8.0.0",
     "@supabase/supabase-js": "^2.45.0",
     "cheerio": "^1.0.0-rc.12",
-    "chrome-aws-lambda": "10.1.0",
-    "chromium": "^3.0.3",
     "dotenv": "16.3.1",
     "fastify": "4.23.2",
     "fastify-cron": "^1.3.1",
     "fastify-firebase": "^1.0.3",
     "fastify-plugin": "4.5.1",
     "moment-timezone": "^0.5.45",
-    "puppeteer-core": "10.1.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "ts-node": "^10.9.1",
@@ -24,7 +21,7 @@
     "zod": "3.22.3"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
