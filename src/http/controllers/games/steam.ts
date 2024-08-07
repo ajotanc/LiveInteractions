@@ -1,6 +1,6 @@
 import cheerio from "cheerio";
-import puppeteer  from "puppeteer";
-// import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import puppeteer, { type Browser }  from "puppeteer-core";
+import chrome from "@sparticuz/chromium";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
@@ -29,10 +29,29 @@ interface Games {
 
 export default async function getContent(url: string) {
   try {
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
-      headless: true
-    });
+    const isProd = process.env.NODE_ENV === 'production'
+
+    let browser: Browser
+  
+    if (isProd) {
+      browser = await puppeteer.launch({
+        args: chrome.args,
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath(),
+        headless: 'new',
+        ignoreHTTPSErrors: true
+      })
+    } else {
+      browser = await puppeteer.launch({
+        headless: 'new',
+        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      })
+    }
+
+    // const browser = await puppeteer.launch({
+    //   args: ["--no-sandbox", "--hide-scrollbars", "--disable-web-security"],
+    //   headless: true
+    // });
 
     const page = await browser.newPage();
   

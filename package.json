@@ -16,6 +16,8 @@
     "moment-timezone": "^0.5.45",
     "puppeteer": "^23.0.1",
     "puppeteer-extra": "^3.3.6",
+    "@sparticuz/chromium": "^119.0.2",
+    "puppeteer-core": "^21.5.1",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "ts-node": "^10.9.1",
     "twisted": "1.53.2",
@@ -31,7 +33,7 @@
     "build": "tsc -p tsconfig.json",
     "build-dev": "tsup src --out-dir build",
     "start": "node build/server.js",
-    "postinstall": "npx puppeteer browsers install",
+    "postinstall": "npx puppeteer browsers install chrome",
     "gcp-build": "node node_modules/puppeteer/install.mjs"
   },
   "devDependencies": {
