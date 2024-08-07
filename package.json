@@ -26,7 +26,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "vercel": "vercel dev",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node node_modules/puppeteer/install.js",
     "build-dev": "tsup src --out-dir build",
     "start": "node build/server.js"
   },
