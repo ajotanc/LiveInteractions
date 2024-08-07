@@ -27,9 +27,10 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "vercel": "vercel dev",
-    "build": "tsc -p tsconfig.json && node node_modules/puppeteer/install.mjs",
+    "build": "tsc -p tsconfig.json",
     "build-dev": "tsup src --out-dir build",
-    "start": "node build/server.js"
+    "start": "node build/server.js",
+    "postinstall": "puppeteer install"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "2.1.0",
