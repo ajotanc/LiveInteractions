@@ -51,15 +51,20 @@ export default async function getContent(url: string) {
     }
   }
 
-  const browser = await puppeteerBrowser.launch(options);
-  const page = await browser.newPage();
-
-  await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
-
-  const content = await page.content();
-  await browser.close();
-
-  return content;
+  try {
+    const browser = await puppeteerBrowser.launch(options);
+    const page = await browser.newPage();
+  
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+  
+    const content = await page.content();
+    await browser.close();
+  
+    return content;
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
 }
 
 export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
