@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { z } from "zod";
+import { string, z } from "zod";
 
 import type { FastifyReply, FastifyRequest } from "fastify";
 
@@ -11,7 +11,9 @@ process.setMaxListeners(0);
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
 interface Summary {
+  name: string;
   description: string;
+  url: string;
   tags: string[];
   developers: string[];
   distributors: string[];
@@ -22,7 +24,6 @@ interface Summary {
 interface Games {
   name: string;
   value: number;
-  url: string;
   summary: Summary;
 }
 
@@ -38,72 +39,116 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
 
   const { top } = mostPlayedQuerySchema.parse(request.query);
 
-  const today = new Date();
-  const dateStr = today.toISOString().split("T")[0];
-  const filename = `${dateStr}-${top}.json`;
-
-  const { data: fileExists } = await supabase.storage
-    .from("most-played")
-    .download(filename);
-
-  if (fileExists) {
-    const fileContent = await fileExists.text();
-    return JSON.parse(fileContent);
-  }
-
   const $ = await getContent(
     "https://store.steampowered.com/charts/mostplayed/",
   );
 
-  const games = [];
-
   const rows = $('[data-featuretarget="react-root"]')
     .find("table tbody")
     .find("tr")
-    .filter((index) => index < Number.parseInt(top));
+    .slice(0, Number.parseInt(top));
 
-  for (const element of rows.toArray()) {
+  const gamesPromises = rows.toArray().map(async (element) => {
     const label = $(element).find("td:eq(2) a > div").text().trim();
     const url = $(element).find("td:eq(2) a").attr("href");
     const value = Number.parseInt(
       $(element).find("td:eq(5)").text().trim().replace(/\D/g, ""),
     );
 
-    const summary = await getInfo(label, url);
-
-    games.push({
+    return {
       label,
       value,
-      url,
-      summary,
-    });
-  }
+      summary: await getInfo(label, url),
+    };
+  });
 
-  const jsonData = JSON.stringify(games, null, 2);
-  const buffer = Buffer.from(jsonData);
-
-  const { error: uploadError } = await supabase.storage
-    .from("most-played")
-    .upload(filename, buffer, {
-      contentType: "application/json",
-    });
-
-  if (uploadError) {
-    throw uploadError;
-  }
-
-  return games;
+  const games = await Promise.all(gamesPromises);
+  return games as unknown as Games[];
 }
+// export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
+//   const choices = ["1", "2", "3", "4", "5", "10", "25", "50", "75", "100"] as [
+//     string,
+//     ...string[],
+//   ];
 
-export async function getInfo(name: string, url: string): Promise<Summary> {
+//   const mostPlayedQuerySchema = z.object({
+//     top: z.enum(choices).default("10"),
+//   });
+
+//   const { top } = mostPlayedQuerySchema.parse(request.query);
+
+//   const today = new Date();
+//   const dateStr = today.toISOString().split("T")[0];
+//   const filename = `${dateStr}-${top}.json`;
+
+//   const { data: fileExists } = await supabase.storage
+//     .from("most-played")
+//     .download(filename);
+
+//   if (fileExists) {
+//     const fileContent = await fileExists.text();
+//     return JSON.parse(fileContent);
+//   }
+
+//   const $ = await getContent(
+//     "https://store.steampowered.com/charts/mostplayed/",
+//   );
+
+//   const games = [];
+
+//   const rows = $('[data-featuretarget="react-root"]')
+//     .find("table tbody")
+//     .find("tr")
+//     .filter((index) => index < Number.parseInt(top));
+
+//   for (const element of rows.toArray()) {
+//     const label = $(element).find("td:eq(2) a > div").text().trim();
+//     const url = $(element).find("td:eq(2) a").attr("href");
+//     const value = Number.parseInt(
+//       $(element).find("td:eq(5)").text().trim().replace(/\D/g, ""),
+//     );
+
+//     const summary = await getInfo(label, url);
+
+//     games.push({
+//       label,
+//       value,
+//       url,
+//       summary,
+//     });
+//   }
+
+//   const jsonData = JSON.stringify(games, null, 2);
+//   const buffer = Buffer.from(jsonData);
+
+//   const { error: uploadError } = await supabase.storage
+//     .from("most-played")
+//     .upload(filename, buffer, {
+//       contentType: "application/json",
+//     });
+
+//   if (uploadError) {
+//     throw uploadError;
+//   }
+
+//   return games;
+// }
+
+async function getSummary(name: string): Promise<Summary> {
   const { data } = await supabase
     .from("games")
-    .select("description, tags, developers, distributors, releaseDate, image")
+    .select("*")
     .eq("name", name)
     .single();
 
-  if (data) {
-    return data;
+  return data as Summary;
+}
+
+export async function getInfo(name: string, url: string): Promise<Summary> {
+  const summary = await getSummary(name);
+
+  if (summary) {
+    return summary;
   }
 
   const $ = await getContent(url, true);
@@ -116,43 +161,35 @@ export async function getInfo(name: string, url: string): Promise<Summary> {
 
   const image = infos.find("#gameHeaderImageCtn").find("img").attr("src");
 
-  const allDevelopers = infos.find("#developers_list").find("a");
-  const developers = [];
+  const developers = [...infos
+    .find("#developers_list")
+    .find("a")
+    .map((_, element) => $(element).text().trim())];
 
-  allDevelopers.each((_, element) => {
-    const value = $(element).text().trim();
-    developers.push(value);
-  });
+  const distributors = [...infos
+    .find(".dev_row")
+    .last()
+    .find("a")
+    .map((_, element) => $(element).text().trim())];
 
-  const distributors = [];
-  const allDistributors = infos.find(".dev_row").last().find("a");
-
-  allDistributors.each((_, element) => {
-    const value = $(element).text().trim();
-    distributors.push(value);
-  });
-
-  const allTags = infos.find("#glanceCtnResponsiveRight").find(".app_tag");
-
-  const tags = [];
-
-  allTags.each((_, element) => {
-    const value = $(element).text().trim();
-
-    if (value !== "+") {
-      tags.push(value);
-    }
-  });
+  const tags = [...infos
+    .find("#glanceCtnResponsiveRight")
+    .find(".app_tag")
+    .map((_, element) => {
+      const value = $(element).text().trim();
+      return value !== "+" ? value : null;
+    })].filter(Boolean);
 
   const gameInfo = {
     name,
     description,
+    url,
     tags,
     developers,
     distributors,
-    image,
     releaseDate,
-  };
+    image,
+  } as Summary;
 
   const { error: insertError } = await supabase
     .from("games")
@@ -169,7 +206,7 @@ export async function updateGame(
   name: string,
   url: string,
   column: string,
-): Promise<Summary> {
+): Promise<Summary | null> {
   const { data: game } = await supabase
     .from("games")
     .select("*")
@@ -208,7 +245,7 @@ export async function updateGame(
       break;
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("games")
     .update(updateGame)
     .eq("name", name);
@@ -218,7 +255,6 @@ export async function updateGame(
   }
 
   console.log(`Game updated: ${name}`);
-  return data as Summary;
 }
 
 // export async function updateGame(
