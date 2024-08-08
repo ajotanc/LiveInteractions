@@ -13,7 +13,8 @@ const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 const regexSteamId = /\/app\/(\d+)\//;
 
 interface Game {
-  value?: number;
+  playingNow?: number;
+  dailyPeak?: number;
   id?: string;
   name: string;
   description: string;
@@ -51,12 +52,16 @@ export async function mostPlayed(request: FastifyRequest, reply: FastifyReply): 
     const name = $(element).find("td:eq(2) a > div").text().trim();
     const [_, steamId] = $(element).find("td:eq(2) a").attr("href").match(regexSteamId);
 
-    const value = Number.parseInt(
+    const playingNow = Number.parseInt(
+      $(element).find("td:eq(4)").text().trim().replace(/\D/g, ""),
+    );
+    const dailyPeak = Number.parseInt(
       $(element).find("td:eq(5)").text().trim().replace(/\D/g, ""),
     );
 
     return {
-      value,
+      playingNow,
+      dailyPeak,
       ...(await getInfo(steamId, name)),
     };
   });
