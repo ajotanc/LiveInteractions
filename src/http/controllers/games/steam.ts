@@ -10,7 +10,9 @@ process.setMaxListeners(0);
 
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
-const regexSteamId = /\/app\/(\d+)\//;
+const regexSteamId = /\/app\/(\d+)/;
+// const regexSteamId = /\/app\/(\d+)\//;
+
 
 interface Game {
   playingNow?: number;
@@ -27,12 +29,46 @@ interface Game {
   steamId?: string;
 }
 
-export async function mostPlayed(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+async function update(){
+  const allGames = await getAllGame();
+
+  allGames.map(async (game) => {
+    const [_, steamId] = game.url.match(regexSteamId);
+    if (!game.releaseDate) {
+      const $ = await getContent(game.url, true);
+
+      const date = $("#game_highlights")
+        .find(".glance_ctn")
+        .find(".release_date")
+        .find(".date")
+        .text()
+        .trim();
+      const releaseDate = convertDateToISO(date);
+
+     await supabase
+      .from("games")
+      .update({
+        releaseDate,
+        steamId
+      })
+      .eq("id", game.id)
+      .single();
+    }
+  });
+}
+
+export async function mostPlayed(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   const choices = ["1", "2", "3", "4", "5", "10", "25", "50", "75", "100"] as [
     string,
     ...string[],
   ];
-  
+
+  // await update();
+  // return;
+
   const mostPlayedQuerySchema = z.object({
     top: z.enum(choices).default("10"),
   });
@@ -50,7 +86,10 @@ export async function mostPlayed(request: FastifyRequest, reply: FastifyReply): 
 
   const gamesPromises = rows.toArray().map(async (element) => {
     const name = $(element).find("td:eq(2) a > div").text().trim();
-    const [_, steamId] = $(element).find("td:eq(2) a").attr("href").match(regexSteamId);
+    const [_, steamId] = $(element)
+      .find("td:eq(2) a")
+      .attr("href")
+      .match(regexSteamId);
 
     const playingNow = Number.parseInt(
       $(element).find("td:eq(4)").text().trim().replace(/\D/g, ""),
@@ -67,14 +106,16 @@ export async function mostPlayed(request: FastifyRequest, reply: FastifyReply): 
   });
 
   const games = await Promise.all(gamesPromises);
-  
+
   reply.send(games);
 }
 
 async function getGame(steamId: string): Promise<Game> {
   const { data } = await supabase
     .from("games")
-    .select("name, description, url, tags, developers, distributors, releaseDate, image")
+    .select(
+      "name, description, url, tags, developers, distributors, releaseDate, image",
+    )
     .eq("steamId", Number.parseInt(steamId))
     .single();
 
@@ -95,8 +136,8 @@ export async function getInfo(steamId: string, name: string): Promise<Game> {
   }
 
   const url = `https://store.steampowered.com/app/${steamId}`;
-  const image = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamId}/header.jpg`
-  
+  const image = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamId}/header.jpg`;
+
   const $ = await getContent(url, true);
 
   const infos = $("#game_highlights").find(".glance_ctn");
@@ -139,6 +180,7 @@ export async function getInfo(steamId: string, name: string): Promise<Game> {
     distributors,
     releaseDate,
     image,
+    steamId,
   } as Game;
 
   const { error: insertError } = await supabase
