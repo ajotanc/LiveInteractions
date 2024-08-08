@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
-import type { FastifyRequest } from "fastify";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { env } from "../../../env";
 import { getContent, convertDateToISO } from "../../../helpers";
@@ -52,7 +52,7 @@ export async function mostPlayed(request: FastifyRequest): Promise<Games[]> {
   }
 
   const $ = await getContent(
-    "https://store.steampowered.com/charts/mostplayed/"
+    "https://store.steampowered.com/charts/mostplayed/",
   );
 
   const games = [];
@@ -132,13 +132,6 @@ export async function getInfo(name: string, url: string): Promise<Summary> {
     distributors.push(value);
   });
 
-  // const summary = $("#userReviews").find(".user_reviews_summary_row").last();
-
-  // const review = summary.find(".game_review_summary").text().trim();
-  // const top = Number.parseInt(
-  //   summary.find(".responsive_hidden").text().replace(/\D/g, ""),
-  // );
-
   const allTags = infos.find("#glanceCtnResponsiveRight").find(".app_tag");
 
   const tags = [];
@@ -171,3 +164,107 @@ export async function getInfo(name: string, url: string): Promise<Summary> {
 
   return gameInfo;
 }
+
+export async function updateGame(
+  name: string,
+  url: string,
+  column: string,
+): Promise<Summary> {
+  const { data: game } = await supabase
+    .from("games")
+    .select("*")
+    .eq("name", name)
+    .not("releaseDate", "is", null)
+    .single();
+
+  if (game) {
+    return game as Summary;
+  }
+
+  const $ = await getContent(url, true);
+
+  const updateGame = {} as Games;
+
+  const infos = $("#game_highlights").find(".glance_ctn");
+
+  switch (column) {
+    case "description":
+      Object.assign(updateGame, {
+        [column]: infos.find(".game_description_snippet").text().trim(),
+      });
+      break;
+    case "image":
+      Object.assign(updateGame, {
+        [column]: infos.find("#gameHeaderImageCtn").find("img").attr("src"),
+      });
+      break;
+    case "date":
+      {
+        const date = infos.find(".release_date").find(".date").text().trim();
+        const releaseDate = convertDateToISO(date);
+
+        Object.assign(updateGame, { releaseDate });
+      }
+      break;
+  }
+
+  const { data, error } = await supabase
+    .from("games")
+    .update(updateGame)
+    .eq("name", name);
+
+  if (error) {
+    throw error;
+  }
+
+  console.log(`Game updated: ${name}`);
+  return data as Summary;
+}
+
+// export async function updateGame(
+//   request: FastifyRequest<{
+//     Params: { name: string; url: string; column: string };
+//   }>,
+//   reply: FastifyReply,
+// ): Promise<Games> {
+//   const { name, url, column } = request.params;
+
+//   const $ = await getContent(url, true);
+
+//   const updateGame = {} as Games;
+
+//   const infos = $("#game_highlights").find(".glance_ctn");
+
+//   switch (column) {
+//     case "description":
+//       Object.assign(updateGame, {
+//         [column]: infos.find(".game_description_snippet").text().trim(),
+//       });
+//       break;
+//          case "image":
+//       Object.assign(updateGame, {
+//         [column]:  infos.find("#gameHeaderImageCtn").find("img").attr("src")
+//       });
+//       break;
+//     case "date":
+//       {
+//         const date = infos.find(".release_date").find(".date").text().trim();
+//         const releaseDate = convertDateToISO(date);
+
+//         Object.assign(updateGame, { releaseDate });
+//       }
+//       break;
+//   }
+
+//   const { data, error } = await supabase
+//     .from("games")
+//     .update(updateGame)
+//     .eq("name", name)
+//     .single();
+
+//   if (error) {
+//     throw error;
+//   }
+
+//   return data as Games;
+// }

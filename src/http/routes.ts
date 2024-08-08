@@ -33,6 +33,7 @@ export const routes: FastifyPluginAsync = async (server) => {
       instance.get("/esocial", dictionary);
       instance.get("/esocial/:id", dictionaryById);
 
+      // STEAM
       instance.get("/games/most-played", mostPlayed);
       done();
     },

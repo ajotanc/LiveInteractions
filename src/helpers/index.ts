@@ -100,7 +100,7 @@ export async function getContent(url: string, steam = false) {
 
 // Função para converter a data
 export function convertDateToISO(dateStr: string): string | null {
-  const dateRegex = /^\d{2}\/[a-z]{3}\.\/\d{4}$/i;
+  const dateRegex = /^\d{1,2}[\/ ]\b[a-z]{3}\.\b[\/ ]\d{4}$/i;
 
   if (!dateStr || !dateRegex.test(dateStr)) {
     return null;
@@ -121,7 +121,7 @@ export function convertDateToISO(dateStr: string): string | null {
     "dez.": "12",
   };
 
-  const [day, month, year] = dateStr.split("/");
+  const [day, month, year] = dateStr.split("/[/ ]/");
   const monthNumber = monthMap[month.toLowerCase()];
 
   const dateString = `${year}-${monthNumber}-${day.padStart(2, "0")}`;
