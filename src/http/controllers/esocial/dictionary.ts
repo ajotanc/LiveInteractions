@@ -1,9 +1,9 @@
-import { FastifyRequest, FastifyReply } from "fastify";
-import { CheerioAPI, Element } from "cheerio";
+import type { FastifyRequest, FastifyReply } from "fastify";
+import type { CheerioAPI, AnyNode } from "cheerio";
 import { z } from "zod";
 import { extractData } from "../../../helpers";
 import { env } from "../../../env";
-import {
+import type {
 	ColumnOthers,
 	Parameters,
 	ParametersOthers,
@@ -124,7 +124,7 @@ export async function dictionaryById(
 
 function createColumns(
 	cheeiro: CheerioAPI,
-	element: Element,
+	element: AnyNode,
 	url: string,
 	nameNumber: number,
 	descriptionNumber: number,
