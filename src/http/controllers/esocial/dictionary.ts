@@ -1,9 +1,9 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
-import type { CheerioAPI, Element } from "cheerio";
+import { FastifyRequest, FastifyReply } from "fastify";
+import { CheerioAPI, Element } from "cheerio";
 import { z } from "zod";
 import { extractData } from "../../../helpers";
 import { env } from "../../../env";
-import type {
+import {
 	ColumnOthers,
 	Parameters,
 	ParametersOthers,
