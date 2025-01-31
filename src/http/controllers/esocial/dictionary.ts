@@ -1,5 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import type { CheerioAPI, AnyNode } from "cheerio";
+import type { CheerioAPI } from "cheerio"; // Updated import
+import type { AnyNode } from "domhandler";
 import { z } from "zod";
 import { extractData } from "../../../helpers";
 import { env } from "../../../env";
@@ -25,9 +26,10 @@ export async function dictionary(
 
 	const menu = $(".navbar-start .has-dropdown");
 	const version = $(".container h1.title").text().trim();
-	const comments = $(".is-hidden-print h2.title:last")
-		.html()
-		.replace(/Observaç[ãõ][oe]s?: /g, "");
+	const comments =
+		$(".is-hidden-print h2.title:last")
+			.html()
+			?.replace(/Observaç[ãõ][oe]s?: /g, "") || "";
 
 	const data: Parameters = {
 		version,
@@ -186,15 +188,15 @@ async function getUrl(): Promise<string> {
 	const year = date.getFullYear();
 
 	const links = elements
-		.map((_, element) => $(element).attr("href").trim())
+		.map((_, element) => $(element).attr("href")?.trim())
 		.get();
 
 	const response = links.find(
 		(link) =>
-			(link.includes(year.toString()) ||
-				link.includes((year - 1).toString())) &&
+			(link?.includes(year.toString()) ||
+				link?.includes((year - 1).toString())) &&
 			link.endsWith(".html"),
 	);
 
-	return response;
+	return response || "";
 }
