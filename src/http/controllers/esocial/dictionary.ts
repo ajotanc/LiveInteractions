@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import type { CheerioAPI } from "cheerio"; // Updated import
-import type { AnyNode } from "domhandler";
+import type { AnyNode } from 'domhandler';
 import { z } from "zod";
 import { extractData } from "../../../helpers";
 import { env } from "../../../env";
