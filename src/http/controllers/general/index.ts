@@ -14,15 +14,17 @@ export async function downloadImage(
 
 	try {
 		const response = await axios.get(url, { responseType: "arraybuffer" });
-
-		const base64Image = Buffer.from(response.data).toString("base64");
-		const contentType = response.headers["content-type"] || "image/png";
+		const base64Image = Buffer.from(response.data, "binary").toString("base64");
 
 		reply.send({
-			image: `data:${contentType};base64,${base64Image}`,
+			status: true,
+			message: null,
+			image: `data:image/png;base64,${base64Image}`,
 		});
 	} catch (error) {
-		console.error(error);
-		reply.status(500).send({ error: "Erro ao baixar imagem." });
+		reply.status(500).send({
+			status: false,
+			error: "Erro ao baixar imagem.",
+		});
 	}
 }
