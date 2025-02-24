@@ -9,7 +9,7 @@ export async function imageBase64(
 ) {
 	const search = z.object({
 		url: z.string(),
-		portrait: z.number().optional().default(0),
+		portrait: z.coerce.number().optional().default(0),
 	});
 
 	const { url, portrait } = search.parse(request.query);
