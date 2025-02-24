@@ -2,7 +2,7 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import axios from "axios";
 import { z } from "zod";
 
-export async function downloadImage(
+export async function imageBase64(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
@@ -13,7 +13,7 @@ export async function downloadImage(
 	const { url } = search.parse(request.query);
 
 	try {
-		const response = await axios.get(url, { responseType: "arraybuffer" });
+		const response = await axios.get(decodeURIComponent(url), { responseType: "arraybuffer" });
 		const base64Image = Buffer.from(response.data, "binary").toString("base64");
 
 		reply.send({
@@ -24,7 +24,7 @@ export async function downloadImage(
 	} catch (error) {
 		reply.status(500).send({
 			status: false,
-			error: "Erro ao baixar imagem.",
+			error: "Error downloading image.",
 		});
 	}
 }

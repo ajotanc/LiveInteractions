@@ -11,7 +11,7 @@ import { mostPlayed } from "./controllers/games/steam";
 import { weapons } from "./controllers/warzone/weapons";
 import { meta } from "./controllers/magistrike/meta";
 import { dictionary, dictionaryById } from "./controllers/esocial/dictionary";
-import { downloadImage } from "./controllers/general";
+import { imageBase64 } from "./controllers/general";
 
 export const routes: FastifyPluginAsync = async (server) => {
 	server.register(
@@ -37,7 +37,7 @@ export const routes: FastifyPluginAsync = async (server) => {
 			// STEAM
 			instance.get("/games/most-played", mostPlayed);
 
-			instance.get("/general/download-image", downloadImage);
+			instance.get("/general/image/base64", imageBase64);
 			done();
 		},
 	);
