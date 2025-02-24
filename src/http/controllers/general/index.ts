@@ -70,7 +70,7 @@ export async function imageBase64(
 	} catch (error) {
 		reply.status(500).send({
 			status: false,
-			error: "Error downloading image.",
+			error: "Error downloading image!",
 			image: null,
 		});
 	}
