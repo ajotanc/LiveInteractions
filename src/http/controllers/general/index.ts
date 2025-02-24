@@ -1,3 +1,4 @@
+import { integer } from './../../../../node_modules/devtools-protocol/types/protocol.d';
 import type { FastifyRequest, FastifyReply } from "fastify";
 import axios from "axios";
 import sharp from "sharp";
@@ -9,7 +10,7 @@ export async function imageBase64(
 ) {
 	const search = z.object({
 		url: z.string(),
-		portrait: z.boolean().optional().default(false),
+		portrait: z.number().optional().default(0),
 	});
 
 	const { url, portrait } = search.parse(request.query);
