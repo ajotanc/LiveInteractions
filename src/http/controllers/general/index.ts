@@ -46,21 +46,26 @@ export async function imageBase64(
 
 		if (portrait) {
 			const metadata = await sharp(imageBuffer).metadata();
-			const originalWidth = metadata.width || 1;
-			const originalHeight = metadata.height || 1;
+			const originalWidth = metadata.width;
+			const originalHeight = metadata.height;
 
-			const targetWidth = originalWidth;
-			const targetHeight = (originalWidth * 4) / 3;
+			const targetHeight = originalHeight;
+			const targetWidth = (originalHeight * 3) / 4;
 
-			let sy = originalHeight - targetHeight;
-			if (sy < 0) sy = 0;
+			const sx = (originalWidth - targetWidth) / 2;
+			const sy = originalHeight - targetHeight;
 
 			imageBuffer = await sharp(imageBuffer)
-				.extract({ left: 0, top: sy, width: targetWidth, height: targetHeight })
+				.extract({
+					left: sx,
+					top: sy,
+					width: targetWidth,
+					height: targetHeight,
+				})
 				.toBuffer();
 		}
 
-		const base64Image = imageBuffer.toString("base64");
+		const base64Image = Buffer.from(imageBuffer).toString("base64");
 
 		reply.send({
 			status: true,
