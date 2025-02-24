@@ -1,4 +1,3 @@
-import { integer } from './../../../../node_modules/devtools-protocol/types/protocol.d';
 import type { FastifyRequest, FastifyReply } from "fastify";
 import axios from "axios";
 import sharp from "sharp";
