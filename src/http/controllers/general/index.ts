@@ -1,5 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import axios from "axios";
+import sharp from "sharp";
 import { z } from "zod";
 
 export async function imageBase64(
@@ -8,9 +9,10 @@ export async function imageBase64(
 ) {
 	const search = z.object({
 		url: z.string(),
+		portrait: z.boolean().optional().default(false),
 	});
 
-	const { url } = search.parse(request.query);
+	const { url, portrait } = search.parse(request.query);
 
 	try {
 		const response = await axios.get(decodeURIComponent(url), {
@@ -40,7 +42,25 @@ export async function imageBase64(
 			}
 		}
 
-		const base64Image = Buffer.from(response.data, "binary").toString("base64");
+		let imageBuffer = response.data;
+
+		if (portrait) {
+			const metadata = await sharp(imageBuffer).metadata();
+			const originalWidth = metadata.width || 1;
+			const originalHeight = metadata.height || 1;
+
+			const targetWidth = originalWidth;
+			const targetHeight = (originalWidth * 4) / 3;
+
+			let sy = originalHeight - targetHeight;
+			if (sy < 0) sy = 0;
+
+			imageBuffer = await sharp(imageBuffer)
+				.extract({ left: 0, top: sy, width: targetWidth, height: targetHeight })
+				.toBuffer();
+		}
+
+		const base64Image = imageBuffer.toString("base64");
 
 		reply.send({
 			status: true,
