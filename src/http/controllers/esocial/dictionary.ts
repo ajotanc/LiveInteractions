@@ -195,7 +195,7 @@ async function getUrl(): Promise<string> {
 		(link) =>
 			(link?.includes(year.toString()) ||
 				link?.includes((year - 1).toString())) &&
-			link.endsWith(".html"),
+			/\.html\/?$/.test(link),
 	);
 
 	return response || "";
